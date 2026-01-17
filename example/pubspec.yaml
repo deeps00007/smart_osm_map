@@ -1,0 +1,16 @@
+name: smart_osm_map_example
+description: Example app for smart_osm_map
+publish_to: "none"
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  smart_osm_map:
+    path: ../
+
+flutter:
+  uses-material-design: true
