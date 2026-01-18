@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
-import 'package:latlong2/latlong.dart';
+import 'package:latlong2/latlong.dart' hide Path;
 
 import '../models/internal_map_item.dart';
 import '../defaults/default_image_marker.dart';
@@ -27,8 +27,9 @@ class SmartOsmMap<T> extends StatefulWidget {
 
   final double _markerSize;
   final Color _markerBorderColor;
-  final Color _clusterColor;
+  // final Color _clusterColor;
   final Color _radiusColor;
+  final double _minZoom;
 
   const SmartOsmMap._({
     required List<InternalMapItem<T>> items,
@@ -45,6 +46,7 @@ class SmartOsmMap<T> extends StatefulWidget {
     Color markerBorderColor = Colors.blue,
     Color clusterColor = Colors.black,
     Color radiusColor = Colors.blue,
+    double minZoom = 2.0,
     super.key,
   })  : _items = items,
         _markerImage = markerImage,
@@ -58,8 +60,9 @@ class SmartOsmMap<T> extends StatefulWidget {
         _onLocationServiceDisabled = onLocationServiceDisabled,
         _markerSize = markerSize,
         _markerBorderColor = markerBorderColor,
-        _clusterColor = clusterColor,
-        _radiusColor = radiusColor;
+        // _clusterColor = clusterColor,
+        _radiusColor = radiusColor,
+        _minZoom = minZoom;
 
   factory SmartOsmMap.simple({
     required List<T> items,
@@ -78,6 +81,7 @@ class SmartOsmMap<T> extends StatefulWidget {
     Color markerBorderColor = Colors.blue,
     Color clusterColor = Colors.black,
     Color radiusColor = Colors.blue,
+    double minZoom = 2.0,
   }) {
     return SmartOsmMap._(
       items: items
@@ -102,6 +106,7 @@ class SmartOsmMap<T> extends StatefulWidget {
       markerBorderColor: markerBorderColor,
       clusterColor: clusterColor,
       radiusColor: radiusColor,
+      minZoom: minZoom,
     );
   }
 
@@ -234,7 +239,7 @@ class _SmartOsmMapState<T> extends State<SmartOsmMap<T>>
           }).toList()
         : widget._items;
 
-    final LatLng center = _userLocation ?? widget._items.first.position;
+    final LatLng center = widget._items.first.position;
 
     return Stack(
       children: [
@@ -242,77 +247,149 @@ class _SmartOsmMapState<T> extends State<SmartOsmMap<T>>
           mapController: _mapController,
           options: MapOptions(
             initialCenter: center,
-            initialZoom: canUseNearby ? 14 : 13,
+            initialZoom: 13,
+            minZoom: widget._minZoom,
           ),
           children: [
             TileLayer(
               urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
               userAgentPackageName: 'com.smart.osm.map',
             ),
-            MarkerClusterLayerWidget(
-              options: MarkerClusterLayerOptions(
-                maxClusterRadius: 45,
-                size: const Size(60, 60),
-                markers: visibleItems.map((item) {
-                  final imageUrl = widget._markerImage?.call(item.data);
-                  return Marker(
-                    key: _MarkerDataKey(item.id, imageUrl),
-                    point: item.position,
-                    width: widget._markerSize,
-                    height: widget._markerSize,
-                    child: GestureDetector(
-                      onTap: () => widget._onTap?.call(item.data),
-                      child: DefaultImageMarker(
-                        imageUrl: imageUrl,
-                        size: widget._markerSize,
-                        borderColor: widget._markerBorderColor,
-                      ),
-                    ),
-                  );
-                }).toList(),
-                builder: (context, markers) {
-                  String? clusterImage;
-                  try {
-                    // Extract image from the first marker's key
-                    final firstKey = markers.first.key as _MarkerDataKey?;
-                    clusterImage = firstKey?.imageUrl;
-                  } catch (_) {}
-
-                  return Stack(
-                    clipBehavior: Clip.none,
-                    children: [
-                      // 🖼️ Cluster Background (Image)
-                      DefaultImageMarker(
-                        imageUrl: clusterImage,
-                        size: 60,
-                        borderColor: widget._clusterColor,
-                      ),
-                      // 🔢 Count Badge
-                      Positioned(
-                        right: 0,
-                        top: 0,
-                        child: Container(
-                          padding: const EdgeInsets.all(6),
-                          decoration: BoxDecoration(
-                            color: widget._clusterColor,
-                            shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white, width: 2),
-                          ),
-                          child: Text(
-                            markers.length.toString(),
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12,
-                            ),
-                          ),
+            if (visibleItems.isNotEmpty)
+              MarkerClusterLayerWidget(
+                options: MarkerClusterLayerOptions(
+                  maxClusterRadius: 45,
+                  size: const Size(72, 88),
+                  markers: visibleItems.map((item) {
+                    final imageUrl = widget._markerImage?.call(item.data);
+                    return Marker(
+                      key: _MarkerDataKey(item.id, imageUrl),
+                      point: item.position,
+                      width: widget._markerSize,
+                      height: widget._markerSize,
+                      child: GestureDetector(
+                        onTap: () => widget._onTap?.call(item.data),
+                        child: DefaultImageMarker(
+                          imageUrl: imageUrl,
+                          size: widget._markerSize,
+                          borderColor: widget._markerBorderColor,
                         ),
                       ),
-                    ],
-                  );
-                },
+                    );
+                  }).toList(),
+                  builder: (context, markers) {
+                    // 🧠 Extract up to 2 unique image URLs (SAFE & FAST)
+                    final Set<String> imageSet = {};
+                    for (final marker in markers) {
+                      final key = marker.key;
+                      if (key is _MarkerDataKey && key.imageUrl != null) {
+                        imageSet.add(key.imageUrl!);
+                        if (imageSet.length == 2) break;
+                      }
+                    }
+                    final images = imageSet.toList();
+
+                    return GestureDetector(
+                      onTap: () {
+                        // 🔍 Zoom into cluster on tap (EXPECTED UX)
+                        _animatedMapMove(markers.first.point,
+                            _mapController.camera.zoom + 2);
+                      },
+                      child: SizedBox(
+                        width: 72,
+                        height: 88,
+                        child: Stack(
+                          alignment: Alignment.topCenter,
+                          children: [
+                            // 🎯 Teardrop background
+                            CustomPaint(
+                              size: const Size(72, 88),
+                              painter: _TeardropPainter(
+                                color: Colors.black.withValues(alpha: 0.85),
+                                outlineColor: widget._radiusColor,
+                                outlineWidth: 2.5,
+                              ),
+                            ),
+
+                            // 🖼️ Image container
+                            Positioned(
+                              top: 6,
+                              child: Container(
+                                width: 60,
+                                height: 60,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors.grey.shade900,
+                                ),
+                                child: Stack(
+                                  alignment: Alignment.center,
+                                  children: [
+                                    if (images.isEmpty)
+                                      const Icon(
+                                        Icons.place_rounded,
+                                        color: Colors.white,
+                                        size: 26,
+                                      )
+                                    else if (images.length == 1)
+                                      _buildCircleImage(images.first, 56)
+                                    else ...[
+                                      Positioned(
+                                        left: 2,
+                                        top: 12,
+                                        child: _buildCircleImage(images[0], 38),
+                                      ),
+                                      Positioned(
+                                        right: 2,
+                                        bottom: 12,
+                                        child: _buildCircleImage(images[1], 38),
+                                      ),
+                                    ],
+                                  ],
+                                ),
+                              ),
+                            ),
+
+                            // 🔢 Count badge
+                            Positioned(
+                              top: 2,
+                              right: 6,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 7, vertical: 3),
+                                decoration: BoxDecoration(
+                                  color: widget._radiusColor,
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
+                                    color: Colors.white.withValues(alpha: 0.9),
+                                    width: 1,
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color:
+                                          Colors.black.withValues(alpha: 0.25),
+                                      blurRadius: 6,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                  ],
+                                ),
+                                child: Text(
+                                  markers.length.toString(),
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 12,
+                                    height: 1.1,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
               ),
-            ),
             if (canUseNearby)
               AnimatedRadiusLayer(
                 center: _userLocation!,
@@ -352,6 +429,100 @@ class _SmartOsmMapState<T> extends State<SmartOsmMap<T>>
       ],
     );
   }
+
+  Widget _buildCircleImage(String imageUrl, double size) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        border: Border.all(color: Colors.white, width: 1),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.3),
+            blurRadius: 4,
+          ),
+        ],
+      ),
+      child: ClipOval(
+        child: DefaultImageMarker(
+          imageUrl: imageUrl,
+          size: size,
+          borderColor: Colors.transparent, // Border handled by Container
+        ),
+      ),
+    );
+  }
+}
+
+class _TeardropPainter extends CustomPainter {
+  final Color color;
+  final Color outlineColor;
+  final double outlineWidth;
+
+  _TeardropPainter({
+    required this.color,
+    required this.outlineColor,
+    required this.outlineWidth,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    // 🎨 Gradient for 3D effect
+    final gradient = LinearGradient(
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+      colors: [
+        color,
+        Color.lerp(color, Colors.black, 0.4)!, // Darker shade
+      ],
+    );
+
+    final paint = Paint()
+      ..shader = gradient.createShader(Offset.zero & size)
+      ..style = PaintingStyle.fill;
+
+    final outlinePaint = Paint()
+      ..color = outlineColor
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = outlineWidth
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
+
+    final path = Path();
+    final w = size.width;
+    final h = size.height;
+    final r = w / 2;
+
+    // Start from left-center
+    path.moveTo(0, r);
+
+    // Top Arc
+    path.arcToPoint(
+      Offset(w, r),
+      radius: Radius.circular(r),
+      largeArc: true,
+    );
+
+    // Bottom Tip part
+    path.quadraticBezierTo(w, h * 0.65, w / 2, h);
+    path.quadraticBezierTo(0, h * 0.65, 0, r);
+
+    path.close();
+
+    // 🌑 Drop Shadow (Two layers for depth)
+    canvas.drawShadow(path, Colors.black.withOpacity(0.5), 6, true);
+    canvas.drawShadow(path, Colors.black.withOpacity(0.3), 12, true);
+
+    // Draw Fill
+    canvas.drawPath(path, paint);
+
+    // Draw Outline
+    canvas.drawPath(path, outlinePaint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
 
 class _MarkerDataKey extends ValueKey<String> {
