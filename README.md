@@ -25,53 +25,114 @@ dependencies:
 
 ## Usage
 
-### Basic Implementation
+### 1. Define Your Data Model
 
-The simplest way to use `SmartOsmMap` is with the `.simple` constructor. You only need a list of items and functions to extract their location.
+First, define the data you want to display on the map. This can be any Dart class.
+
+```dart
+class Place {
+  final String name;
+  final double lat;
+  final double lng;
+  final String image; // Asset path or network URL
+
+  const Place({
+    required this.name,
+    required this.lat,
+    required this.lng,
+    required this.image,
+  });
+}
+```
+
+### 2. Basic Implementation
+
+Use the `.simple` constructor to map your data list to the map.
 
 ```dart
 import 'package:smart_osm_map/smart_osm_map.dart';
 
-SmartOsmMap.simple(
-  items: myPlaces, // Your list of objects
-  latitude: (place) => place.lat,
-  longitude: (place) => place.lng,
-  markerImage: (place) => place.imageUrl, // Optional image URL
-  onTap: (place) {
-    print('Tapped on ${place.name}');
-  },
-)
+class MyMapScreen extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    // Your list of places
+    final List<Place> places = [ /* ... */ ];
+
+    return Scaffold(
+      body: SmartOsmMap.simple(
+        items: places,
+        // Extract location data
+        latitude: (place) => place.lat,
+        longitude: (place) => place.lng,
+        // Extract marker image (optional)
+        markerImage: (place) => place.image, 
+        // Handle taps
+        onTap: (place) {
+          print('Tapped on ${place.name}');
+        },
+      ),
+    );
+  }
+}
 ```
 
-### Enabling User Location & Nearby Filtering
+### 3. Advanced Features & Customization
 
-To show the user's location and enable "Nearby" filtering, you must handle permissions. The package provides hooks for all permission states, allowing you to show the appropriate UI to your users.
+The following example demonstrates how to enable user location, toggle "Nearby" filtering, and customize the map style within a `StatefulWidget`.
 
 ```dart
-SmartOsmMap.simple(
-  items: places,
-  latitude: (p) => p.lat,
-  longitude: (p) => p.lng,
-  
-  // Enable features
-  showUserLocation: true,
-  enableNearby: true,
-  nearbyRadiusKm: 10, // Filter within 10km
-  
-  // Permission Callbacks (Handle these in your UI)
-  onLocationPermissionGranted: () {
-    print("Location access granted");
-  },
-  onLocationPermissionDenied: () {
-    // Show a snackbar or dialog asking for permission
-  },
-  onLocationPermissionDeniedForever: () {
-    // Direct user to app settings
-  },
-  onLocationServiceDisabled: () {
-    // Ask user to enable GPS
-  },
-)
+class SmartMapPlayground extends StatefulWidget {
+  @override
+  State<SmartMapPlayground> createState() => _SmartMapPlaygroundState();
+}
+
+class _SmartMapPlaygroundState extends State<SmartMapPlayground> {
+  bool showUserLocation = false;
+  bool enableNearby = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return SmartOsmMap.simple(
+      items: places,
+      latitude: (p) => p.lat,
+      longitude: (p) => p.lng,
+      markerImage: (p) => p.image,
+
+      // --- Feature 1: User Location ---
+      // Toggle this boolean to show/hide the user's location.
+      // The package handles permission requests automatically.
+      showUserLocation: showUserLocation,
+
+      // --- Feature 2: Nearby Filtering ---
+      // When enabled, only shows items within `nearbyRadiusKm` of the user.
+      enableNearby: enableNearby,
+      nearbyRadiusKm: 10, 
+
+      // --- Feature 3: Styling ---
+      markerSize: 64,
+      markerBorderColor: Colors.deepPurple,
+      clusterColor: Colors.black87,
+      radiusColor: Colors.deepPurple.withOpacity(0.3),
+      
+      // --- Feature 4: Interaction ---
+      onTap: (place) {
+        // Handle marker tap (e.g., show a modal or navigate)
+        showModalBottomSheet(
+          context: context, 
+          builder: (_) => Text(place.name),
+        );
+      },
+      
+      // --- Feature 5: Permission Handling ---
+      // Optional callbacks to handle permission states in your UI
+      onLocationPermissionDenied: () {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Location permission is required.')),
+        );
+      },
+    );
+  }
+}
 ```
 
 ## Configuration
