@@ -112,9 +112,11 @@ class SmartOsmMap<T> extends StatefulWidget {
 class _SmartOsmMapState<T> extends State<SmartOsmMap<T>>
     with TickerProviderStateMixin {
   final LocationService _locationService = LocationService();
+  final MapController _mapController = MapController();
   LatLng? _userLocation;
 
   late final AnimationController _radiusController;
+  late final AnimationController _moveController;
 
   @override
   void initState() {
@@ -122,6 +124,10 @@ class _SmartOsmMapState<T> extends State<SmartOsmMap<T>>
     _radiusController =
         AnimationController(vsync: this, duration: const Duration(seconds: 2))
           ..repeat();
+    _moveController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1500),
+    );
   }
 
   @override
@@ -158,6 +164,7 @@ class _SmartOsmMapState<T> extends State<SmartOsmMap<T>>
         widget._onLocationPermissionGranted?.call();
         if (!mounted || location == null) return;
         setState(() => _userLocation = location);
+        _animatedMapMove(location, 15);
         return;
 
       case LocationResult.failed:
@@ -165,9 +172,44 @@ class _SmartOsmMapState<T> extends State<SmartOsmMap<T>>
     }
   }
 
+  void _animatedMapMove(LatLng destLocation, double destZoom) {
+    // Create some variables that hold the current state of the map
+    final latTween = Tween<double>(
+      begin: _mapController.camera.center.latitude,
+      end: destLocation.latitude,
+    );
+    final lngTween = Tween<double>(
+      begin: _mapController.camera.center.longitude,
+      end: destLocation.longitude,
+    );
+    final zoomTween = Tween<double>(
+      begin: _mapController.camera.zoom,
+      end: destZoom,
+    );
+
+    final controller = _moveController;
+    controller.reset();
+
+    final animation = CurvedAnimation(
+      parent: controller,
+      curve: Curves.fastOutSlowIn,
+    );
+
+    controller.addListener(() {
+      _mapController.move(
+        LatLng(latTween.evaluate(animation), lngTween.evaluate(animation)),
+        zoomTween.evaluate(animation),
+      );
+    });
+
+    controller.forward();
+  }
+
   @override
   void dispose() {
     _radiusController.dispose();
+    _moveController.dispose();
+    _mapController.dispose();
     super.dispose();
   }
 
@@ -197,6 +239,7 @@ class _SmartOsmMapState<T> extends State<SmartOsmMap<T>>
     return Stack(
       children: [
         FlutterMap(
+          mapController: _mapController,
           options: MapOptions(
             initialCenter: center,
             initialZoom: canUseNearby ? 14 : 13,
