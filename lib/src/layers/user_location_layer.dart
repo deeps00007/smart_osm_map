@@ -9,21 +9,23 @@ class UserLocationLayer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MarkerLayer(
-      markers: [
-        Marker(
-          point: location,
-          width: 22,
-          height: 22,
-          child: Container(
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.blue,
-              border: Border.all(color: Colors.white, width: 3),
+    return IgnorePointer(
+      child: MarkerLayer(
+        markers: [
+          Marker(
+            point: location,
+            width: 22,
+            height: 22,
+            child: Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.blue,
+                border: Border.all(color: Colors.white, width: 3),
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

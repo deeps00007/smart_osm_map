@@ -255,6 +255,13 @@ class _SmartOsmMapState<T> extends State<SmartOsmMap<T>>
               urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
               userAgentPackageName: 'com.smart.osm.map',
             ),
+            if (canUseNearby)
+              AnimatedRadiusLayer(
+                center: _userLocation!,
+                animation: _radiusController,
+                radiusInMeters: widget._nearbyRadiusMeters,
+                color: widget._radiusColor,
+              ),
             if (visibleItems.isNotEmpty)
               MarkerClusterLayerWidget(
                 options: MarkerClusterLayerOptions(
@@ -389,13 +396,6 @@ class _SmartOsmMapState<T> extends State<SmartOsmMap<T>>
                     );
                   },
                 ),
-              ),
-            if (canUseNearby)
-              AnimatedRadiusLayer(
-                center: _userLocation!,
-                animation: _radiusController,
-                radiusInMeters: widget._nearbyRadiusMeters,
-                color: widget._radiusColor,
               ),
             if (effectiveShowLocation && _userLocation != null)
               UserLocationLayer(location: _userLocation!),

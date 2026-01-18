@@ -20,30 +20,32 @@ class AnimatedRadiusLayer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: animation,
-      builder: (context, child) {
-        return CircleLayer(
-          circles: List.generate(numberOfRipples, (index) {
-            // Calculate staggered animation value for each ripple
-            // The offset allows ripples to start at different times
-            final value = (animation.value + (index / numberOfRipples)) % 1.0;
+    return IgnorePointer(
+      child: AnimatedBuilder(
+        animation: animation,
+        builder: (context, child) {
+          return CircleLayer(
+            circles: List.generate(numberOfRipples, (index) {
+              // Calculate staggered animation value for each ripple
+              // The offset allows ripples to start at different times
+              final value = (animation.value + (index / numberOfRipples)) % 1.0;
 
-            return CircleMarker(
-              point: center,
-              radius: radiusInMeters * value,
-              useRadiusInMeter: true,
-              color: color.withValues(
-                alpha: 0.15 * (1 - value),
-              ),
-              borderColor: color.withValues(
-                alpha: 0.4 * (1 - value),
-              ),
-              borderStrokeWidth: 2,
-            );
-          }),
-        );
-      },
+              return CircleMarker(
+                point: center,
+                radius: radiusInMeters * value,
+                useRadiusInMeter: true,
+                color: color.withValues(
+                  alpha: 0.15 * (1 - value),
+                ),
+                borderColor: color.withValues(
+                  alpha: 0.4 * (1 - value),
+                ),
+                borderStrokeWidth: 2,
+              );
+            }),
+          );
+        },
+      ),
     );
   }
 }
