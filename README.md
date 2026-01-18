@@ -1,5 +1,9 @@
 # Smart OSM Map
 
+[![Pub Version](https://img.shields.io/pub/v/smart_osm_map.svg)](https://pub.dev/packages/smart_osm_map)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Flutter Platform](https://img.shields.io/badge/Platform-Flutter-02569B?logo=flutter)](https://flutter.dev)
+
 A production-ready Flutter package for OpenStreetMap integration. It provides clustered markers, image support, user location display, and nearby filtering with animated radius effects.
 
 Built on top of `flutter_map`, this package offers a "plug-and-play" experience with strong UX defaults, privacy-safe location handling, and a clean API.
