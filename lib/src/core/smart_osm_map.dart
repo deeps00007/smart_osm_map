@@ -16,11 +16,9 @@ class SmartOsmMap<T> extends StatefulWidget {
   final void Function(T)? _onTap;
 
   final bool _showUserLocation;
-  final bool _focusOnUser;
   final bool _enableNearby;
   final double _nearbyRadiusMeters;
 
-  // 🆕 Customization
   final double _markerSize;
   final Color _markerBorderColor;
   final Color _clusterColor;
@@ -31,7 +29,6 @@ class SmartOsmMap<T> extends StatefulWidget {
     String? Function(T)? markerImage,
     void Function(T)? onTap,
     bool showUserLocation = false,
-    bool focusOnUser = false,
     bool enableNearby = false,
     double nearbyRadiusMeters = 10000,
     double markerSize = 56,
@@ -43,7 +40,6 @@ class SmartOsmMap<T> extends StatefulWidget {
         _markerImage = markerImage,
         _onTap = onTap,
         _showUserLocation = showUserLocation,
-        _focusOnUser = focusOnUser,
         _enableNearby = enableNearby,
         _nearbyRadiusMeters = nearbyRadiusMeters,
         _markerSize = markerSize,
@@ -51,7 +47,6 @@ class SmartOsmMap<T> extends StatefulWidget {
         _clusterColor = clusterColor,
         _radiusColor = radiusColor;
 
-  /// ✅ SIMPLE USER API
   factory SmartOsmMap.simple({
     required List<T> items,
     required double Function(T) latitude,
@@ -59,7 +54,6 @@ class SmartOsmMap<T> extends StatefulWidget {
     String? Function(T)? markerImage,
     void Function(T)? onTap,
     bool showUserLocation = false,
-    bool focusOnUser = false,
     bool enableNearby = false,
     double nearbyRadiusKm = 10,
     double markerSize = 56,
@@ -67,20 +61,19 @@ class SmartOsmMap<T> extends StatefulWidget {
     Color clusterColor = Colors.black,
     Color radiusColor = Colors.blue,
   }) {
-    final mapped = items.map((e) {
-      return InternalMapItem<T>(
-        id: e.hashCode.toString(),
-        position: LatLng(latitude(e), longitude(e)),
-        data: e,
-      );
-    }).toList();
-
     return SmartOsmMap._(
-      items: mapped,
+      items: items
+          .map(
+            (e) => InternalMapItem<T>(
+              id: e.hashCode.toString(),
+              position: LatLng(latitude(e), longitude(e)),
+              data: e,
+            ),
+          )
+          .toList(),
       markerImage: markerImage,
       onTap: onTap,
       showUserLocation: showUserLocation,
-      focusOnUser: focusOnUser,
       enableNearby: enableNearby,
       nearbyRadiusMeters: nearbyRadiusKm * 1000,
       markerSize: markerSize,
@@ -104,12 +97,31 @@ class _SmartOsmMapState<T> extends State<SmartOsmMap<T>>
   @override
   void initState() {
     super.initState();
-    _radiusController = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 2),
-    )..repeat();
+    _radiusController =
+        AnimationController(vsync: this, duration: const Duration(seconds: 2))
+          ..repeat();
+  }
 
-    _loadUserLocation();
+  /// 🔥 THIS IS THE KEY FIX
+  @override
+  void didUpdateWidget(covariant SmartOsmMap<T> oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    final bool locationWasOff =
+        !oldWidget._showUserLocation && !oldWidget._enableNearby;
+
+    final bool locationIsOn = widget._showUserLocation || widget._enableNearby;
+
+    if (locationWasOff && locationIsOn) {
+      _loadUserLocation();
+    }
+  }
+
+  Future<void> _loadUserLocation() async {
+    final location = await _locationService.getCurrentLocation();
+    if (!mounted || location == null) return;
+
+    setState(() => _userLocation = location);
   }
 
   @override
@@ -118,41 +130,25 @@ class _SmartOsmMapState<T> extends State<SmartOsmMap<T>>
     super.dispose();
   }
 
-  Future<void> _loadUserLocation() async {
-    if (!widget._showUserLocation && !widget._enableNearby) return;
-
-    final location = await _locationService.getCurrentLocation();
-    if (!mounted) return;
-
-    setState(() => _userLocation = location);
-  }
-
   @override
   Widget build(BuildContext context) {
     if (widget._items.isEmpty) {
       return const Center(child: Text('No map data'));
     }
 
-    // 🧼 SAFETY: if nearby enabled but location not available
     final bool canUseNearby = widget._enableNearby && _userLocation != null;
 
-    List<InternalMapItem<T>> visibleItems = widget._items;
+    final visibleItems = canUseNearby
+        ? widget._items.where((item) {
+            final d = DistanceUtils.distanceInMeters(
+              _userLocation!,
+              item.position,
+            );
+            return d <= widget._nearbyRadiusMeters;
+          }).toList()
+        : widget._items;
 
-    if (canUseNearby) {
-      visibleItems = widget._items.where((item) {
-        final distance = DistanceUtils.distanceInMeters(
-          _userLocation!,
-          item.position,
-        );
-        return distance <= widget._nearbyRadiusMeters;
-      }).toList();
-    }
-
-    // 🧭 Center logic (safe)
-    LatLng center = widget._items.first.position;
-    if (widget._focusOnUser && _userLocation != null) {
-      center = _userLocation!;
-    }
+    final LatLng center = _userLocation ?? widget._items.first.position;
 
     return FlutterMap(
       options: MapOptions(

@@ -1,122 +1,122 @@
 import 'package:flutter/material.dart';
-import 'package:smart_osm_map/smart_osm_map.dart';
 
 void main() {
   runApp(const MyApp());
 }
 
-/// Dummy model
-class Place {
-  final String name;
-  final double lat;
-  final double lng;
-  final String image;
-
-  Place({
-    required this.name,
-    required this.lat,
-    required this.lng,
-    required this.image,
-  });
-}
-
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
+  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: MapDemoScreen(),
+    return MaterialApp(
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        // This is the theme of your application.
+        //
+        // TRY THIS: Try running your application with "flutter run". You'll see
+        // the application has a purple toolbar. Then, without quitting the app,
+        // try changing the seedColor in the colorScheme below to Colors.green
+        // and then invoke "hot reload" (save your changes or press the "hot
+        // reload" button in a Flutter-supported IDE, or press "r" if you used
+        // the command line to start the app).
+        //
+        // Notice that the counter didn't reset back to zero; the application
+        // state is not lost during the reload. To reset the state, use hot
+        // restart instead.
+        //
+        // This works for code too, not just values: Most code changes can be
+        // tested with just a hot reload.
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+      ),
+      home: const MyHomePage(title: 'Flutter Demo Home Page'),
     );
   }
 }
 
-class MapDemoScreen extends StatefulWidget {
-  const MapDemoScreen({super.key});
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key, required this.title});
+
+  // This widget is the home page of your application. It is stateful, meaning
+  // that it has a State object (defined below) that contains fields that affect
+  // how it looks.
+
+  // This class is the configuration for the state. It holds the values (in this
+  // case the title) provided by the parent (in this case the App widget) and
+  // used by the build method of the State. Fields in a Widget subclass are
+  // always marked "final".
+
+  final String title;
 
   @override
-  State<MapDemoScreen> createState() => _MapDemoScreenState();
+  State<MyHomePage> createState() => _MyHomePageState();
 }
 
-class _MapDemoScreenState extends State<MapDemoScreen> {
-  bool enableLocation = false;
+class _MyHomePageState extends State<MyHomePage> {
+  int _counter = 0;
 
-  /// Sample data
-  final List<Place> places = [
-    Place(
-      name: 'Connaught Place',
-      lat: 28.6315,
-      lng: 77.2167,
-      image: 'https://images.unsplash.com/photo-1524492412937-b28074a5d7da',
-    ),
-    Place(
-      name: 'India Gate',
-      lat: 28.6129,
-      lng: 77.2295,
-      image: 'https://images.unsplash.com/photo-1587474260584-136574528ed5',
-    ),
-    Place(
-      name: 'Red Fort',
-      lat: 28.6562,
-      lng: 77.2410,
-      image: 'https://images.unsplash.com/photo-1600697260490-bb3b71b7fcdc',
-    ),
-    Place(
-      name: 'Qutub Minar',
-      lat: 28.5245,
-      lng: 77.1855,
-      image: 'https://images.unsplash.com/photo-1599661046289-e31897846e41',
-    ),
-  ];
-
-  void _enableUserLocation() {
+  void _incrementCounter() {
     setState(() {
-      enableLocation = true;
+      // This call to setState tells the Flutter framework that something has
+      // changed in this State, which causes it to rerun the build method below
+      // so that the display can reflect the updated values. If we changed
+      // _counter without calling setState(), then the build method would not be
+      // called again, and so nothing would appear to happen.
+      _counter++;
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    // This method is rerun every time setState is called, for instance as done
+    // by the _incrementCounter method above.
+    //
+    // The Flutter framework has been optimized to make rerunning build methods
+    // fast, so that you can just rebuild anything that needs updating rather
+    // than having to individually change instances of widgets.
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Smart OSM Map Example'),
-        actions: [
-          IconButton(
-            icon: Icon(
-              enableLocation ? Icons.my_location : Icons.location_searching,
-            ),
-            tooltip: 'Use my location',
-            onPressed: _enableUserLocation,
-          ),
-        ],
+        // TRY THIS: Try changing the color here to a specific color (to
+        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
+        // change color while the other colors stay the same.
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        // Here we take the value from the MyHomePage object that was created by
+        // the App.build method, and use it to set our appbar title.
+        title: Text(widget.title),
       ),
-      body: SmartOsmMap.simple(
-        items: places,
-        latitude: (p) => p.lat,
-        longitude: (p) => p.lng,
-        markerImage: (p) => p.image,
-
-        // 🔥 LOCATION FEATURES (CONTROLLED BY BUTTON)
-        showUserLocation: enableLocation,
-        focusOnUser: enableLocation,
-        enableNearby: enableLocation,
-        nearbyRadiusKm: 10,
-
-        // 🎨 CUSTOMIZATION
-        markerSize: 56,
-        markerBorderColor: Colors.green,
-        clusterColor: Colors.black,
-        radiusColor: Colors.blue,
-
-        onTap: (place) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Tapped: ${place.name}'),
+      body: Center(
+        // Center is a layout widget. It takes a single child and positions it
+        // in the middle of the parent.
+        child: Column(
+          // Column is also a layout widget. It takes a list of children and
+          // arranges them vertically. By default, it sizes itself to fit its
+          // children horizontally, and tries to be as tall as its parent.
+          //
+          // Column has various properties to control how it sizes itself and
+          // how it positions its children. Here we use mainAxisAlignment to
+          // center the children vertically; the main axis here is the vertical
+          // axis because Columns are vertical (the cross axis would be
+          // horizontal).
+          //
+          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
+          // action in the IDE, or press "p" in the console), to see the
+          // wireframe for each widget.
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            const Text('You have pushed the button this many times:'),
+            Text(
+              '$_counter',
+              style: Theme.of(context).textTheme.headlineMedium,
             ),
-          );
-        },
+          ],
+        ),
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _incrementCounter,
+        tooltip: 'Increment',
+        child: const Icon(Icons.add),
+      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }

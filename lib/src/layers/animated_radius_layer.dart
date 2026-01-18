@@ -7,6 +7,7 @@ class AnimatedRadiusLayer extends StatelessWidget {
   final Animation<double> animation;
   final double radiusInMeters;
   final Color color;
+  final int numberOfRipples;
 
   const AnimatedRadiusLayer({
     super.key,
@@ -14,21 +15,35 @@ class AnimatedRadiusLayer extends StatelessWidget {
     required this.animation,
     required this.radiusInMeters,
     this.color = Colors.blue,
+    this.numberOfRipples = 3,
   });
 
   @override
   Widget build(BuildContext context) {
-    return CircleLayer(
-      circles: [
-        CircleMarker(
-          point: center,
-          radius: radiusInMeters * animation.value,
-          useRadiusInMeter: true,
-          color: color.withOpacity(0.15 * (1 - animation.value)),
-          borderColor: color.withOpacity(0.4 * (1 - animation.value)),
-          borderStrokeWidth: 2,
-        ),
-      ],
+    return AnimatedBuilder(
+      animation: animation,
+      builder: (context, child) {
+        return CircleLayer(
+          circles: List.generate(numberOfRipples, (index) {
+            // Calculate staggered animation value for each ripple
+            // The offset allows ripples to start at different times
+            final value = (animation.value + (index / numberOfRipples)) % 1.0;
+
+            return CircleMarker(
+              point: center,
+              radius: radiusInMeters * value,
+              useRadiusInMeter: true,
+              color: color.withValues(
+                alpha: 0.15 * (1 - value),
+              ),
+              borderColor: color.withValues(
+                alpha: 0.4 * (1 - value),
+              ),
+              borderStrokeWidth: 2,
+            );
+          }),
+        );
+      },
     );
   }
 }
