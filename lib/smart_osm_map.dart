@@ -1,4 +1,2 @@
-library smart_osm_map;
-
-/// Core widget
+// Core widget
 export 'src/core/smart_osm_map.dart';

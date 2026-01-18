@@ -23,7 +23,7 @@ class DefaultImageMarker extends StatelessWidget {
         border: Border.all(color: borderColor, width: 3),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.25),
+            color: Colors.black.withValues(alpha: 0.25),
             blurRadius: 6,
             offset: const Offset(0, 3),
           ),

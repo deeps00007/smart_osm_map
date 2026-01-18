@@ -415,7 +415,7 @@ class _SmartOsmMapState<T> extends State<SmartOsmMap<T>>
                     vertical: 12,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.6),
+                    color: Colors.black.withValues(alpha: 0.6),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: const Text(
@@ -439,7 +439,7 @@ class _SmartOsmMapState<T> extends State<SmartOsmMap<T>>
         border: Border.all(color: Colors.white, width: 1),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.3),
+            color: Colors.black.withValues(alpha: 0.3),
             blurRadius: 4,
           ),
         ],
@@ -511,8 +511,8 @@ class _TeardropPainter extends CustomPainter {
     path.close();
 
     // 🌑 Drop Shadow (Two layers for depth)
-    canvas.drawShadow(path, Colors.black.withOpacity(0.5), 6, true);
-    canvas.drawShadow(path, Colors.black.withOpacity(0.3), 12, true);
+    canvas.drawShadow(path, Colors.black.withValues(alpha: 0.5), 6, true);
+    canvas.drawShadow(path, Colors.black.withValues(alpha: 0.3), 12, true);
 
     // Draw Fill
     canvas.drawPath(path, paint);
@@ -527,5 +527,5 @@ class _TeardropPainter extends CustomPainter {
 
 class _MarkerDataKey extends ValueKey<String> {
   final String? imageUrl;
-  const _MarkerDataKey(String id, this.imageUrl) : super(id);
+  const _MarkerDataKey(super.id, this.imageUrl);
 }
