@@ -1,6 +1,8 @@
 # Smart OSM Map
 
 [![Pub Version](https://img.shields.io/pub/v/smart_osm_map.svg)](https://pub.dev/packages/smart_osm_map)
+[![Pub Points](https://img.shields.io/pub/points/smart_osm_map?color=2E8B57&label=pub%20points)](https://pub.dev/packages/smart_osm_map/score)
+[![Pub Popularity](https://img.shields.io/pub/popularity/smart_osm_map?logo=dart)](https://pub.dev/packages/smart_osm_map/score)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Flutter Platform](https://img.shields.io/badge/Platform-Flutter-02569B?logo=flutter)](https://flutter.dev)
 
