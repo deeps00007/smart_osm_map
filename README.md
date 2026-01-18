@@ -1,20 +1,20 @@
-# smart_osm_map
+# Smart OSM Map
 
-A production-ready Flutter package for OpenStreetMap that provides easy-to-use clustered markers, image-based markers, user location display, and nearby filtering with animated radius effects.
+A production-ready Flutter package for OpenStreetMap integration. It provides clustered markers, image support, user location display, and nearby filtering with animated radius effects.
 
-Built on top of `flutter_map`, this package aims to provide a "plug-and-play" experience with strong UX defaults, privacy-safe location handling, and a clean API.
+Built on top of `flutter_map`, this package offers a "plug-and-play" experience with strong UX defaults, privacy-safe location handling, and a clean API.
 
-## ✨ Features
+## Features
 
-*   **Clustered Markers**: Automatically clusters markers to reduce clutter and improve performance.
-*   **Image Markers**: Supports both network images and local asset images for markers.
-*   **User Location**: Optional support to show the user's current location with safe permission handling.
-*   **Nearby Filtering**: Filter markers within a configurable radius from the user, complete with an animated ripple effect.
-*   **Privacy First**: Does not track, store, or transmit user location data. Location is only accessed when explicitly enabled by you.
-*   **Customizable**: Control marker size, border colors, cluster colors, and more.
-*   **No API Keys**: Uses OpenStreetMap tiles, requiring no API keys for standard usage.
+- **Clustered Markers**: Automatically clusters markers to reduce clutter and improve performance.
+- **Image Markers**: Supports both network images and local asset images for markers.
+- **User Location**: Optional support to show the user's current location with safe permission handling.
+- **Nearby Filtering**: Filter markers within a configurable radius from the user, complete with an animated ripple effect.
+- **Privacy First**: Does not track, store, or transmit user location data. Location is only accessed when explicitly enabled by you.
+- **Customizable**: Control marker size, border colors, cluster colors, and more.
+- **No API Keys**: Uses OpenStreetMap tiles, requiring no API keys for standard usage.
 
-## 🚀 Installation
+## Installation
 
 Add `smart_osm_map` to your `pubspec.yaml`:
 
@@ -23,11 +23,11 @@ dependencies:
   smart_osm_map: ^0.0.1
 ```
 
-## 📱 Usage
+## Usage
 
-### Basic Usage
+### Basic Implementation
 
-The simplest way to use `SmartOsmMap` is with the `.simple` constructor. You just need a list of items and functions to extract their location.
+The simplest way to use `SmartOsmMap` is with the `.simple` constructor. You only need a list of items and functions to extract their location.
 
 ```dart
 import 'package:smart_osm_map/smart_osm_map.dart';
@@ -45,7 +45,7 @@ SmartOsmMap.simple(
 
 ### Enabling User Location & Nearby Filtering
 
-To show the user's location and enable "Nearby" filtering, you need to handle permissions. The package provides hooks for all permission states so you can show the appropriate UI to your users.
+To show the user's location and enable "Nearby" filtering, you must handle permissions. The package provides hooks for all permission states, allowing you to show the appropriate UI to your users.
 
 ```dart
 SmartOsmMap.simple(
@@ -74,7 +74,7 @@ SmartOsmMap.simple(
 )
 ```
 
-## ⚙️ Configuration
+## Configuration
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -89,7 +89,7 @@ SmartOsmMap.simple(
 | `markerSize` | `double` | `56` | Size of the marker icons. |
 | `minZoom` | `double` | `2.0` | Minimum zoom level (how far you can zoom out). |
 
-## 🔒 Permissions
+## OS Permissions
 
 This package uses `geolocator` to handle location. You must configure your app for location access.
 
@@ -111,13 +111,13 @@ Add the following to your `<project>/ios/Runner/Info.plist`:
 <string>This app needs access to location when open to show nearby places.</string>
 ```
 
-## 🤝 Privacy & Safety
+## Privacy & Safety
 
-*   **No Tracking**: `smart_osm_map` does not track user location in the background.
-*   **No Data Collection**: Location data is processed locally on the device to render the user layer and calculate distances. It is never sent to any external server by this package.
-*   **Store Friendly**: Designed to comply with Apple App Store and Google Play Store privacy guidelines regarding location usage.
+- **No Tracking**: `smart_osm_map` does not track user location in the background.
+- **No Data Collection**: Location data is processed locally on the device to render the user layer and calculate distances. It is never sent to any external server by this package.
+- **Store Friendly**: Designed to comply with Apple App Store and Google Play Store privacy guidelines regarding location usage.
 
-## ⚠️ Notes
+## Best Practices
 
-*   **Large Datasets**: While clustering helps with performance, extremely large datasets (thousands of items) may still impact performance depending on the device.
-*   **Tile Servers**: By default, this uses standard OpenStreetMap tiles. Ensure you comply with their [Tile Usage Policy](https://operations.osmfoundation.org/policies/tiles/) for heavy usage, or swap with your own tile provider if needed.
+- **Large Datasets**: While clustering helps with performance, extremely large datasets (thousands of items) may still impact performance depending on the device.
+- **Tile Servers**: By default, this uses standard OpenStreetMap tiles. Ensure you comply with their [Tile Usage Policy](https://operations.osmfoundation.org/policies/tiles/) for heavy usage, or swap with your own tile provider if needed.
