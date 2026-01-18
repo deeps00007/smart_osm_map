@@ -254,14 +254,16 @@ class _SmartOsmMapState<T> extends State<SmartOsmMap<T>>
                 maxClusterRadius: 45,
                 size: const Size(60, 60),
                 markers: visibleItems.map((item) {
+                  final imageUrl = widget._markerImage?.call(item.data);
                   return Marker(
+                    key: _MarkerDataKey(item.id, imageUrl),
                     point: item.position,
                     width: widget._markerSize,
                     height: widget._markerSize,
                     child: GestureDetector(
                       onTap: () => widget._onTap?.call(item.data),
                       child: DefaultImageMarker(
-                        imageUrl: widget._markerImage?.call(item.data),
+                        imageUrl: imageUrl,
                         size: widget._markerSize,
                         borderColor: widget._markerBorderColor,
                       ),
@@ -269,19 +271,44 @@ class _SmartOsmMapState<T> extends State<SmartOsmMap<T>>
                   );
                 }).toList(),
                 builder: (context, markers) {
-                  return Container(
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: widget._clusterColor,
-                    ),
-                    alignment: Alignment.center,
-                    child: Text(
-                      markers.length.toString(),
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
+                  String? clusterImage;
+                  try {
+                    // Extract image from the first marker's key
+                    final firstKey = markers.first.key as _MarkerDataKey?;
+                    clusterImage = firstKey?.imageUrl;
+                  } catch (_) {}
+
+                  return Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      // 🖼️ Cluster Background (Image)
+                      DefaultImageMarker(
+                        imageUrl: clusterImage,
+                        size: 60,
+                        borderColor: widget._clusterColor,
                       ),
-                    ),
+                      // 🔢 Count Badge
+                      Positioned(
+                        right: 0,
+                        top: 0,
+                        child: Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: widget._clusterColor,
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.white, width: 2),
+                          ),
+                          child: Text(
+                            markers.length.toString(),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   );
                 },
               ),
@@ -325,4 +352,9 @@ class _SmartOsmMapState<T> extends State<SmartOsmMap<T>>
       ],
     );
   }
+}
+
+class _MarkerDataKey extends ValueKey<String> {
+  final String? imageUrl;
+  const _MarkerDataKey(String id, this.imageUrl) : super(id);
 }
