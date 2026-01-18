@@ -26,7 +26,7 @@ Add `smart_osm_map` to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  smart_osm_map: ^0.0.1
+  smart_osm_map: ^0.1.0
 ```
 
 ## Usage
