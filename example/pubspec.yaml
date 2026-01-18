@@ -30,7 +30,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-
+  
+  smart_osm_map:
+    path: ../
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
@@ -58,8 +60,19 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-  # assets:
-  #   - images/a_dot_burr.jpeg
+  assets:
+    - assets/images/budget_hotel.png
+    - assets/images/busy_intersection.png
+    - assets/images/connaught_place.png
+    - assets/images/hospital.png
+    - assets/images/india_gate.png
+    - assets/images/luxury_hotel.png
+    - assets/images/qutub_minar.png
+    - assets/images/red_fort.png
+    - assets/images/shopping_mall.png
+    - assets/images/taj_mahal.png
+    - assets/images/tech_campus.png
+    - assets/images/temple.png
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

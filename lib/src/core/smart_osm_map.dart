@@ -19,6 +19,12 @@ class SmartOsmMap<T> extends StatefulWidget {
   final bool _enableNearby;
   final double _nearbyRadiusMeters;
 
+  // 🔔 Permission callbacks
+  final VoidCallback? _onLocationPermissionGranted;
+  final VoidCallback? _onLocationPermissionDenied;
+  final VoidCallback? _onLocationPermissionDeniedForever;
+  final VoidCallback? _onLocationServiceDisabled;
+
   final double _markerSize;
   final Color _markerBorderColor;
   final Color _clusterColor;
@@ -31,6 +37,10 @@ class SmartOsmMap<T> extends StatefulWidget {
     bool showUserLocation = false,
     bool enableNearby = false,
     double nearbyRadiusMeters = 10000,
+    VoidCallback? onLocationPermissionGranted,
+    VoidCallback? onLocationPermissionDenied,
+    VoidCallback? onLocationPermissionDeniedForever,
+    VoidCallback? onLocationServiceDisabled,
     double markerSize = 56,
     Color markerBorderColor = Colors.blue,
     Color clusterColor = Colors.black,
@@ -42,6 +52,10 @@ class SmartOsmMap<T> extends StatefulWidget {
         _showUserLocation = showUserLocation,
         _enableNearby = enableNearby,
         _nearbyRadiusMeters = nearbyRadiusMeters,
+        _onLocationPermissionGranted = onLocationPermissionGranted,
+        _onLocationPermissionDenied = onLocationPermissionDenied,
+        _onLocationPermissionDeniedForever = onLocationPermissionDeniedForever,
+        _onLocationServiceDisabled = onLocationServiceDisabled,
         _markerSize = markerSize,
         _markerBorderColor = markerBorderColor,
         _clusterColor = clusterColor,
@@ -56,6 +70,10 @@ class SmartOsmMap<T> extends StatefulWidget {
     bool showUserLocation = false,
     bool enableNearby = false,
     double nearbyRadiusKm = 10,
+    VoidCallback? onLocationPermissionGranted,
+    VoidCallback? onLocationPermissionDenied,
+    VoidCallback? onLocationPermissionDeniedForever,
+    VoidCallback? onLocationServiceDisabled,
     double markerSize = 56,
     Color markerBorderColor = Colors.blue,
     Color clusterColor = Colors.black,
@@ -76,6 +94,10 @@ class SmartOsmMap<T> extends StatefulWidget {
       showUserLocation: showUserLocation,
       enableNearby: enableNearby,
       nearbyRadiusMeters: nearbyRadiusKm * 1000,
+      onLocationPermissionGranted: onLocationPermissionGranted,
+      onLocationPermissionDenied: onLocationPermissionDenied,
+      onLocationPermissionDeniedForever: onLocationPermissionDeniedForever,
+      onLocationServiceDisabled: onLocationServiceDisabled,
       markerSize: markerSize,
       markerBorderColor: markerBorderColor,
       clusterColor: clusterColor,
@@ -89,7 +111,7 @@ class SmartOsmMap<T> extends StatefulWidget {
 
 class _SmartOsmMapState<T> extends State<SmartOsmMap<T>>
     with TickerProviderStateMixin {
-  final _locationService = LocationService();
+  final LocationService _locationService = LocationService();
   LatLng? _userLocation;
 
   late final AnimationController _radiusController;
@@ -102,14 +124,12 @@ class _SmartOsmMapState<T> extends State<SmartOsmMap<T>>
           ..repeat();
   }
 
-  /// 🔥 THIS IS THE KEY FIX
   @override
   void didUpdateWidget(covariant SmartOsmMap<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
 
     final bool locationWasOff =
         !oldWidget._showUserLocation && !oldWidget._enableNearby;
-
     final bool locationIsOn = widget._showUserLocation || widget._enableNearby;
 
     if (locationWasOff && locationIsOn) {
@@ -118,10 +138,31 @@ class _SmartOsmMapState<T> extends State<SmartOsmMap<T>>
   }
 
   Future<void> _loadUserLocation() async {
-    final location = await _locationService.getCurrentLocation();
-    if (!mounted || location == null) return;
+    final (result, location) =
+        await _locationService.getCurrentLocationWithStatus();
 
-    setState(() => _userLocation = location);
+    switch (result) {
+      case LocationResult.serviceDisabled:
+        widget._onLocationServiceDisabled?.call();
+        return;
+
+      case LocationResult.permissionDenied:
+        widget._onLocationPermissionDenied?.call();
+        return;
+
+      case LocationResult.permissionDeniedForever:
+        widget._onLocationPermissionDeniedForever?.call();
+        return;
+
+      case LocationResult.success:
+        widget._onLocationPermissionGranted?.call();
+        if (!mounted || location == null) return;
+        setState(() => _userLocation = location);
+        return;
+
+      case LocationResult.failed:
+        return;
+    }
   }
 
   @override
@@ -136,75 +177,108 @@ class _SmartOsmMapState<T> extends State<SmartOsmMap<T>>
       return const Center(child: Text('No map data'));
     }
 
+    final bool effectiveShowLocation =
+        widget._showUserLocation || widget._enableNearby;
+
     final bool canUseNearby = widget._enableNearby && _userLocation != null;
 
     final visibleItems = canUseNearby
         ? widget._items.where((item) {
-            final d = DistanceUtils.distanceInMeters(
+            final distance = DistanceUtils.distanceInMeters(
               _userLocation!,
               item.position,
             );
-            return d <= widget._nearbyRadiusMeters;
+            return distance <= widget._nearbyRadiusMeters;
           }).toList()
         : widget._items;
 
     final LatLng center = _userLocation ?? widget._items.first.position;
 
-    return FlutterMap(
-      options: MapOptions(
-        initialCenter: center,
-        initialZoom: canUseNearby ? 14 : 13,
-      ),
+    return Stack(
       children: [
-        TileLayer(
-          urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-          userAgentPackageName: 'com.smart.osm.map',
+        FlutterMap(
+          options: MapOptions(
+            initialCenter: center,
+            initialZoom: canUseNearby ? 14 : 13,
+          ),
+          children: [
+            TileLayer(
+              urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+              userAgentPackageName: 'com.smart.osm.map',
+            ),
+            MarkerClusterLayerWidget(
+              options: MarkerClusterLayerOptions(
+                maxClusterRadius: 45,
+                size: const Size(60, 60),
+                markers: visibleItems.map((item) {
+                  return Marker(
+                    point: item.position,
+                    width: widget._markerSize,
+                    height: widget._markerSize,
+                    child: GestureDetector(
+                      onTap: () => widget._onTap?.call(item.data),
+                      child: DefaultImageMarker(
+                        imageUrl: widget._markerImage?.call(item.data),
+                        size: widget._markerSize,
+                        borderColor: widget._markerBorderColor,
+                      ),
+                    ),
+                  );
+                }).toList(),
+                builder: (context, markers) {
+                  return Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: widget._clusterColor,
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      markers.length.toString(),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+            if (canUseNearby)
+              AnimatedRadiusLayer(
+                center: _userLocation!,
+                animation: _radiusController,
+                radiusInMeters: widget._nearbyRadiusMeters,
+                color: widget._radiusColor,
+              ),
+            if (effectiveShowLocation && _userLocation != null)
+              UserLocationLayer(location: _userLocation!),
+          ],
         ),
-        MarkerClusterLayerWidget(
-          options: MarkerClusterLayerOptions(
-            maxClusterRadius: 45,
-            size: const Size(60, 60),
-            markers: visibleItems.map((item) {
-              return Marker(
-                point: item.position,
-                width: widget._markerSize,
-                height: widget._markerSize,
-                child: GestureDetector(
-                  onTap: () => widget._onTap?.call(item.data),
-                  child: DefaultImageMarker(
-                    imageUrl: widget._markerImage?.call(item.data),
-                    size: widget._markerSize,
-                    borderColor: widget._markerBorderColor,
+
+        // 🧠 Empty nearby state
+        if (widget._enableNearby &&
+            _userLocation != null &&
+            visibleItems.isEmpty)
+          Positioned.fill(
+            child: IgnorePointer(
+              child: Center(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 12,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.6),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: const Text(
+                    'No places found within this area',
+                    style: TextStyle(color: Colors.white),
                   ),
                 ),
-              );
-            }).toList(),
-            builder: (context, markers) {
-              return Container(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: widget._clusterColor,
-                ),
-                alignment: Alignment.center,
-                child: Text(
-                  markers.length.toString(),
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              );
-            },
+              ),
+            ),
           ),
-        ),
-        if (canUseNearby)
-          AnimatedRadiusLayer(
-            center: _userLocation!,
-            animation: _radiusController,
-            radiusInMeters: widget._nearbyRadiusMeters,
-            color: widget._radiusColor,
-          ),
-        if (_userLocation != null) UserLocationLayer(location: _userLocation!),
       ],
     );
   }
