@@ -15,9 +15,9 @@ Built on top of `flutter_map`, this package offers a "plug-and-play" experience 
 <p align="center">
   <table border="0">
     <tr>
-      <td align="center"><b>Map UI with teardrop clusters</b><br/><img src="https://ik.imagekit.io/projectss/Screenshot_1.jpg" width="250"></td>
-      <td align="center"><b>Map UI with user location</b><br/><img src="https://ik.imagekit.io/projectss/Screenshot_2.jpg" width="250"></td>
-      <td align="center"><b>Map UI with image markers</b><br/><img src="https://ik.imagekit.io/projectss/Screenshot_3.jpg" width="250"></td>
+      <td align="center"><b>Map UI with teardrop clusters</b><br/><img src="https://ik.imagekit.io/projectss/Screenshot_1.jpg" width="200"></td>
+      <td align="center"><b>Map UI with user location</b><br/><img src="https://ik.imagekit.io/projectss/Screenshot_2.jpg" width="200"></td>
+      <td align="center"><b>Map UI with image markers</b><br/><img src="https://ik.imagekit.io/projectss/Screenshot_3.jpg" width="200"></td>
     </tr>
   </table>
 </p>
