@@ -1,16 +1,36 @@
-# example
+# Smart OSM Map Example
 
-A new Flutter project.
+This example demonstrates the full capabilities of the `smart_osm_map` package, featuring a modern, glassmorphic UI and interactive map functionalities.
+
+## Screenshots
+
+<p align="center">
+  <img src="assets/media/Screenshot_1.jpg" width="30%" />
+  <img src="assets/media/Screenshot_2.jpg" width="30%" />
+  <img src="assets/media/Screenshot_3.jpg" width="30%" />
+</p>
+
+## Features Demonstrated
+
+- **Glassmorphic UI**: A premium design with backdrop blur effects and floating pill-shaped headers.
+- **Teardrop Clusters**: Custom-designed marker clusters showing overlapping photo avatars and multi-layered shadows.
+- **Dynamic Filtering**: Real-time filtering of nearby places with a radiating ripple animation.
+- **Smooth Navigation**: High-performance "Fly-To" animations when moving the map camera.
+- **Permission Handling**: Seamless integration with OS-level location permissions and service status checks.
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+1.  **Clone the repository**:
+    ```bash
+    git clone https://github.com/your-repo/smart_osm_map.git
+    ```
+2.  **Navigate to example**:
+    ```bash
+    cd smart_osm_map/example
+    ```
+3.  **Run the app**:
+    ```bash
+    flutter run
+    ```
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+For detailed package documentation, visit the [main README](../README.md).
