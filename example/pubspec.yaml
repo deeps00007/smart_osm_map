@@ -73,7 +73,6 @@ flutter:
     - assets/images/taj_mahal.png
     - assets/images/tech_campus.png
     - assets/images/temple.png
-    - assets/media/
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
