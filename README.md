@@ -12,13 +12,18 @@ Built on top of `flutter_map`, this package offers a "plug-and-play" experience 
 
 ## Showcase
 
-| Premium Teardrop Clusters | Animated Nearby Radiations |
-| :---: | :---: |
-| ![Teardrop Clusters](example/assets/media/Screenshot_1.jpg) | ![Radiation Animation](example/assets/media/Record_1.gif) |
-
-| Glassmorphic UI | Smooth Map Interaction |
-| :---: | :---: |
-| ![Glassmorphism](example/assets/media/Screenshot_2.jpg) | ![Smooth Interaction](example/assets/media/Record_2.gif) |
+<p align="center">
+  <table border="0">
+    <tr>
+      <td align="center"><b>Premium Teardrop Clusters</b><br/><img src="example/assets/media/Screenshot_1.jpg" width="250"></td>
+      <td align="center"><b>Animated Nearby Radiations</b><br/><img src="example/assets/media/Record_1.gif" width="250"></td>
+    </tr>
+    <tr>
+      <td align="center"><b>Glassmorphic UI</b><br/><img src="example/assets/media/Screenshot_2.jpg" width="250"></td>
+      <td align="center"><b>Smooth Map Interaction</b><br/><img src="example/assets/media/Record_2.gif" width="250"></td>
+    </tr>
+  </table>
+</p>
 
 ## Features
 
