@@ -5,9 +5,9 @@ This example demonstrates the full capabilities of the `smart_osm_map` package, 
 ## Screenshots
 
 <p align="center">
-  <img src="https://ik.imagekit.io/projectss/Screenshot_1.jpg" width="30%" />
-  <img src="https://ik.imagekit.io/projectss/Screenshot_2.jpg" width="30%" />
-  <img src="https://ik.imagekit.io/projectss/Screenshot_3.jpg" width="30%" />
+  <img src="assets/media/Screenshot_1.jpg" width="30%" />
+  <img src="assets/media/Screenshot_2.jpg" width="30%" />
+  <img src="assets/media/Screenshot_3.jpg" width="30%" />
 </p>
 
 ## Features Demonstrated

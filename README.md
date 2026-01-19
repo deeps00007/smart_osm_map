@@ -15,10 +15,10 @@ Built on top of `flutter_map`, this package offers a "plug-and-play" experience 
 <p align="center">
   <table border="0">
     <tr>
-      <td align="center"><b>Premium Teardrop Clusters</b><br/><img src="https://ik.imagekit.io/projectss/Screenshot_1.jpg" width="200"></td>
-      <td align="center"><b>Animated Nearby Radiations</b><br/><img src="https://ik.imagekit.io/projectss/demo_1.gif" width="200"></td>
-      <td align="center"><b>Glassmorphic UI</b><br/><img src="https://ik.imagekit.io/projectss/Screenshot_2.jpg" width="200"></td>
-      <td align="center"><b>Smooth Map Interaction</b><br/><img src="https://ik.imagekit.io/projectss/demo_2.gif" width="200"></td>
+      <td align="center"><b>Premium Teardrop Clusters</b><br/><img src="example/assets/media/Screenshot_1.jpg" width="200"></td>
+      <td align="center"><b>Animated Nearby Radiations</b><br/><img src="example/assets/media/Record_1.gif" width="200"></td>
+      <td align="center"><b>Glassmorphic UI</b><br/><img src="example/assets/media/Screenshot_2.jpg" width="200"></td>
+      <td align="center"><b>Smooth Map Interaction</b><br/><img src="example/assets/media/Record_2.gif" width="200"></td>
     </tr>
   </table>
 </p>
