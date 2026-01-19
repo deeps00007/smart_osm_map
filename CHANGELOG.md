@@ -1,3 +1,9 @@
+## 0.2.1
+
+* **Documentation**:
+  * Enhanced `README.md` with additional screenshots showing user location and local image markers.
+  * Optimized table layout for better visual presentation.
+
 ## 0.2.0
 
 * **Features**:
