@@ -1,3 +1,18 @@
+## 0.2.0
+
+* **Features**:
+  * **Custom Teardrop Clusters**: Implemented a premium teardrop-shaped cluster UI with 3D gradients and overlapping avatar images.
+  * **Radiation Animation**: Added a ripple-effect radiation animation for the nearby radius layer.
+  * **Smooth Navigation**: Implemented high-performance "Fly-To" animations for smooth map transitions.
+  * **Advanced Positioning**: Added auto-centering on user location with configurable permission callbacks.
+  * **Asset Image Support**: Markers now support local assets in addition to network URLs.
+* **Fixes**:
+  * Fixed Android build failure by removing deprecated `package` attribute from `AndroidManifest.xml`.
+  * Resolved "Duplicate keys found" error in marker clustering by implementing unique `_MarkerDataKey`.
+  * Replaced deprecated `withOpacity` calls with `.withValues()`.
+* **Example App**:
+  * Completely overhauled the example app with a modern Glassmorphic design, custom search header, and interactive place selection.
+
 ## 0.1.0
 
 * **Features**:

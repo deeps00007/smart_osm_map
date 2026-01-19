@@ -1,6 +1,6 @@
 name: smart_osm_map
 description: A plug-and-play OpenStreetMap widget with clustering, image markers, user location, and nearby radius support.
-version: 0.1.0
+version: 0.2.0
 repository: https://github.com/deeps00007/smart_osm_map
 homepage: https://github.com/deeps00007/smart_osm_map
 
