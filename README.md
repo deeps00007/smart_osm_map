@@ -16,11 +16,11 @@ Built on top of `flutter_map`, this package offers a "plug-and-play" experience 
   <table border="0">
     <tr>
       <td align="center"><b>Premium Teardrop Clusters</b><br/><img src="https://ik.imagekit.io/projectss/Screenshot_1.jpg" width="250"></td>
-      <td align="center"><b>Animated Nearby Radiations</b><br/><img src="https://lh3.googleusercontent.com/d/1DhGeFl7w7rCNlZlB_uQ_Xh4uYgkZz0wh" width="250"></td>
+      <td align="center"><b>Animated Nearby Radiations</b><br/><img src="https://ik.imagekit.io/projectss/demo_1.gif" width="250"></td>
     </tr>
     <tr>
       <td align="center"><b>Glassmorphic UI</b><br/><img src="https://ik.imagekit.io/projectss/Screenshot_2.jpg" width="250"></td>
-      <td align="center"><b>Smooth Map Interaction</b><br/><img src="https://lh3.googleusercontent.com/d/1KKRNxQIhp0bADrnKOiyz2hS0MgRd2JJC" width="250"></td>
+      <td align="center"><b>Smooth Map Interaction</b><br/><img src="https://ik.imagekit.io/projectss/demo_2.gif" width="250"></td>
     </tr>
   </table>
 </p>
