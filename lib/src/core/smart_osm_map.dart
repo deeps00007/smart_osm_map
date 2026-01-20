@@ -30,6 +30,12 @@ class SmartOsmMap<T> extends StatefulWidget {
   // final Color _clusterColor;
   final Color _radiusColor;
   final double _minZoom;
+  final double _maxZoom;
+  final double _initialZoom;
+  final LatLng? _initialCenter;
+  final VoidCallback? _onMapReady;
+  final bool _useClustering;
+  final Widget Function(BuildContext, List<Marker>)? _clusterBuilder;
 
   const SmartOsmMap._({
     required List<InternalMapItem<T>> items,
@@ -47,6 +53,12 @@ class SmartOsmMap<T> extends StatefulWidget {
     Color clusterColor = Colors.black,
     Color radiusColor = Colors.blue,
     double minZoom = 2.0,
+    double maxZoom = 18.0,
+    double initialZoom = 13.0,
+    LatLng? initialCenter,
+    VoidCallback? onMapReady,
+    bool useClustering = true,
+    Widget Function(BuildContext, List<Marker>)? clusterBuilder,
     super.key,
   })  : _items = items,
         _markerImage = markerImage,
@@ -62,7 +74,13 @@ class SmartOsmMap<T> extends StatefulWidget {
         _markerBorderColor = markerBorderColor,
         // _clusterColor = clusterColor,
         _radiusColor = radiusColor,
-        _minZoom = minZoom;
+        _minZoom = minZoom,
+        _maxZoom = maxZoom,
+        _initialZoom = initialZoom,
+        _initialCenter = initialCenter,
+        _onMapReady = onMapReady,
+        _useClustering = useClustering,
+        _clusterBuilder = clusterBuilder;
 
   factory SmartOsmMap.simple({
     required List<T> items,
@@ -82,6 +100,12 @@ class SmartOsmMap<T> extends StatefulWidget {
     Color clusterColor = Colors.black,
     Color radiusColor = Colors.blue,
     double minZoom = 2.0,
+    double maxZoom = 18.0,
+    double initialZoom = 13.0,
+    LatLng? initialCenter,
+    VoidCallback? onMapReady,
+    bool useClustering = true,
+    Widget Function(BuildContext, List<Marker>)? clusterBuilder,
   }) {
     return SmartOsmMap._(
       items: items
@@ -107,6 +131,12 @@ class SmartOsmMap<T> extends StatefulWidget {
       clusterColor: clusterColor,
       radiusColor: radiusColor,
       minZoom: minZoom,
+      maxZoom: maxZoom,
+      initialZoom: initialZoom,
+      initialCenter: initialCenter,
+      onMapReady: onMapReady,
+      useClustering: useClustering,
+      clusterBuilder: clusterBuilder,
     );
   }
 
@@ -246,9 +276,11 @@ class _SmartOsmMapState<T> extends State<SmartOsmMap<T>>
         FlutterMap(
           mapController: _mapController,
           options: MapOptions(
-            initialCenter: center,
-            initialZoom: 13,
+            initialCenter: widget._initialCenter ?? center,
+            initialZoom: widget._initialZoom,
             minZoom: widget._minZoom,
+            maxZoom: widget._maxZoom,
+            onMapReady: widget._onMapReady,
           ),
           children: [
             TileLayer(
@@ -263,140 +295,168 @@ class _SmartOsmMapState<T> extends State<SmartOsmMap<T>>
                 color: widget._radiusColor,
               ),
             if (visibleItems.isNotEmpty)
-              MarkerClusterLayerWidget(
-                options: MarkerClusterLayerOptions(
-                  maxClusterRadius: 45,
-                  size: const Size(72, 88),
-                  markers: visibleItems.map((item) {
-                    final imageUrl = widget._markerImage?.call(item.data);
-                    return Marker(
-                      key: _MarkerDataKey(item.id, imageUrl),
-                      point: item.position,
-                      width: widget._markerSize,
-                      height: widget._markerSize,
-                      child: GestureDetector(
-                        onTap: () => widget._onTap?.call(item.data),
-                        child: DefaultImageMarker(
-                          imageUrl: imageUrl,
-                          size: widget._markerSize,
-                          borderColor: widget._markerBorderColor,
-                        ),
-                      ),
-                    );
-                  }).toList(),
-                  builder: (context, markers) {
-                    // 🧠 Extract up to 2 unique image URLs (SAFE & FAST)
-                    final Set<String> imageSet = {};
-                    for (final marker in markers) {
-                      final key = marker.key;
-                      if (key is _MarkerDataKey && key.imageUrl != null) {
-                        imageSet.add(key.imageUrl!);
-                        if (imageSet.length == 2) break;
-                      }
-                    }
-                    final images = imageSet.toList();
-
-                    return GestureDetector(
-                      onTap: () {
-                        // 🔍 Zoom into cluster on tap (EXPECTED UX)
-                        _animatedMapMove(markers.first.point,
-                            _mapController.camera.zoom + 2);
-                      },
-                      child: SizedBox(
-                        width: 72,
-                        height: 88,
-                        child: Stack(
-                          alignment: Alignment.topCenter,
-                          children: [
-                            // 🎯 Teardrop background
-                            CustomPaint(
-                              size: const Size(72, 88),
-                              painter: _TeardropPainter(
-                                color: Colors.black.withValues(alpha: 0.85),
-                                outlineColor: widget._radiusColor,
-                                outlineWidth: 2.5,
+              widget._useClustering
+                  ? MarkerClusterLayerWidget(
+                      options: MarkerClusterLayerOptions(
+                        maxClusterRadius: 45,
+                        size: const Size(72, 88),
+                        markers: visibleItems.map((item) {
+                          final imageUrl = widget._markerImage?.call(item.data);
+                          return Marker(
+                            key: _MarkerDataKey(item.id, imageUrl),
+                            point: item.position,
+                            width: widget._markerSize,
+                            height: widget._markerSize,
+                            child: GestureDetector(
+                              onTap: () => widget._onTap?.call(item.data),
+                              child: DefaultImageMarker(
+                                imageUrl: imageUrl,
+                                size: widget._markerSize,
+                                borderColor: widget._markerBorderColor,
                               ),
                             ),
+                          );
+                        }).toList(),
+                        builder: widget._clusterBuilder ??
+                            (context, markers) {
+                              // 🧠 Extract up to 2 unique image URLs (SAFE & FAST)
+                              final Set<String> imageSet = {};
+                              for (final marker in markers) {
+                                final key = marker.key;
+                                if (key is _MarkerDataKey &&
+                                    key.imageUrl != null) {
+                                  imageSet.add(key.imageUrl!);
+                                  if (imageSet.length == 2) break;
+                                }
+                              }
+                              final images = imageSet.toList();
 
-                            // 🖼️ Image container
-                            Positioned(
-                              top: 6,
-                              child: Container(
-                                width: 60,
-                                height: 60,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: Colors.grey.shade900,
-                                ),
-                                child: Stack(
-                                  alignment: Alignment.center,
-                                  children: [
-                                    if (images.isEmpty)
-                                      const Icon(
-                                        Icons.place_rounded,
-                                        color: Colors.white,
-                                        size: 26,
-                                      )
-                                    else if (images.length == 1)
-                                      _buildCircleImage(images.first, 56)
-                                    else ...[
-                                      Positioned(
-                                        left: 2,
-                                        top: 12,
-                                        child: _buildCircleImage(images[0], 38),
+                              return GestureDetector(
+                                onTap: () {
+                                  // 🔍 Zoom into cluster on tap (EXPECTED UX)
+                                  _animatedMapMove(markers.first.point,
+                                      _mapController.camera.zoom + 2);
+                                },
+                                child: SizedBox(
+                                  width: 72,
+                                  height: 88,
+                                  child: Stack(
+                                    alignment: Alignment.topCenter,
+                                    children: [
+                                      // 🎯 Teardrop background
+                                      CustomPaint(
+                                        size: const Size(72, 88),
+                                        painter: _TeardropPainter(
+                                          color: Colors.black
+                                              .withValues(alpha: 0.85),
+                                          outlineColor: widget._radiusColor,
+                                          outlineWidth: 2.5,
+                                        ),
                                       ),
+
+                                      // 🖼️ Image container
                                       Positioned(
-                                        right: 2,
-                                        bottom: 12,
-                                        child: _buildCircleImage(images[1], 38),
+                                        top: 6,
+                                        child: Container(
+                                          width: 60,
+                                          height: 60,
+                                          decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            color: Colors.grey.shade900,
+                                          ),
+                                          child: Stack(
+                                            alignment: Alignment.center,
+                                            children: [
+                                              if (images.isEmpty)
+                                                const Icon(
+                                                  Icons.place_rounded,
+                                                  color: Colors.white,
+                                                  size: 26,
+                                                )
+                                              else if (images.length == 1)
+                                                _buildCircleImage(
+                                                    images.first, 56)
+                                              else ...[
+                                                Positioned(
+                                                  left: 2,
+                                                  top: 12,
+                                                  child: _buildCircleImage(
+                                                      images[0], 38),
+                                                ),
+                                                Positioned(
+                                                  right: 2,
+                                                  bottom: 12,
+                                                  child: _buildCircleImage(
+                                                      images[1], 38),
+                                                ),
+                                              ],
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+
+                                      // 🔢 Count badge
+                                      Positioned(
+                                        top: 2,
+                                        right: 6,
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 7, vertical: 3),
+                                          decoration: BoxDecoration(
+                                            color: widget._radiusColor,
+                                            borderRadius:
+                                                BorderRadius.circular(12),
+                                            border: Border.all(
+                                              color: Colors.white
+                                                  .withValues(alpha: 0.9),
+                                              width: 1,
+                                            ),
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Colors.black
+                                                    .withValues(alpha: 0.25),
+                                                blurRadius: 6,
+                                                offset: const Offset(0, 2),
+                                              ),
+                                            ],
+                                          ),
+                                          child: Text(
+                                            markers.length.toString(),
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 12,
+                                              height: 1.1,
+                                            ),
+                                          ),
+                                        ),
                                       ),
                                     ],
-                                  ],
-                                ),
-                              ),
-                            ),
-
-                            // 🔢 Count badge
-                            Positioned(
-                              top: 2,
-                              right: 6,
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 7, vertical: 3),
-                                decoration: BoxDecoration(
-                                  color: widget._radiusColor,
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(
-                                    color: Colors.white.withValues(alpha: 0.9),
-                                    width: 1,
-                                  ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color:
-                                          Colors.black.withValues(alpha: 0.25),
-                                      blurRadius: 6,
-                                      offset: const Offset(0, 2),
-                                    ),
-                                  ],
-                                ),
-                                child: Text(
-                                  markers.length.toString(),
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 12,
-                                    height: 1.1,
                                   ),
                                 ),
-                              ),
-                            ),
-                          ],
-                        ),
+                              );
+                            },
                       ),
-                    );
-                  },
-                ),
-              ),
+                    )
+                  : MarkerLayer(
+                      markers: visibleItems.map((item) {
+                        final imageUrl = widget._markerImage?.call(item.data);
+                        return Marker(
+                          key: _MarkerDataKey(item.id, imageUrl),
+                          point: item.position,
+                          width: widget._markerSize,
+                          height: widget._markerSize,
+                          child: GestureDetector(
+                            onTap: () => widget._onTap?.call(item.data),
+                            child: DefaultImageMarker(
+                              imageUrl: imageUrl,
+                              size: widget._markerSize,
+                              borderColor: widget._markerBorderColor,
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
             if (effectiveShowLocation && _userLocation != null)
               UserLocationLayer(location: _userLocation!),
           ],

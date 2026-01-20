@@ -1,3 +1,17 @@
+## 0.3.0
+
+* **New Features (Reviewer Feedback)**:
+  * Added `maxZoom` parameter to control maximum zoom level.
+  * Added `initialZoom` and `initialCenter` for flexible map initialization.
+  * Added `onMapReady` callback for post-initialization logic.
+  * Added `useClustering` boolean to enable/disable marker grouping.
+  * Added `clusterBuilder` to support custom cluster widgets and icons.
+* **Example App**:
+  * Added interactive "Use Clustering" toggle to demonstration panel.
+  * Added map initialization feedback via `onMapReady` snackbar.
+* **Documentation**:
+  * Updated README with the new configuration parameters and features.
+
 ## 0.2.1
 
 * **Documentation**:

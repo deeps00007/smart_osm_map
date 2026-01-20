@@ -61,6 +61,7 @@ class SmartMapPlayground extends StatefulWidget {
 class _SmartMapPlaygroundState extends State<SmartMapPlayground> {
   bool showUserLocation = false;
   bool enableNearby = false;
+  bool useClustering = true;
   Place? selectedPlace;
 
   final List<Place> places = const [
@@ -214,6 +215,20 @@ class _SmartMapPlaygroundState extends State<SmartMapPlayground> {
             showUserLocation: showUserLocation,
             enableNearby: enableNearby,
             nearbyRadiusKm: 10,
+            useClustering: useClustering,
+
+            // 🛠️ NEW FEEDBACK FEATURES
+            maxZoom: 18,
+            initialZoom: 13,
+            initialCenter: const LatLng(
+              28.6129,
+              77.2295,
+            ), // Center on India Gate
+            onMapReady: () {
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(const SnackBar(content: Text('Map is ready!')));
+            },
 
             // 🎨 STYLE CUSTOMIZATION
             markerSize: 64,
@@ -394,6 +409,17 @@ class _SmartMapPlaygroundState extends State<SmartMapPlayground> {
                 onChanged: showUserLocation
                     ? (v) => setState(() => enableNearby = v)
                     : null,
+              ),
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 8),
+                child: Divider(color: Colors.white12, height: 1),
+              ),
+              _buildSwitch(
+                title: 'Use Clustering',
+                subtitle: 'Group nearby markers',
+                value: useClustering,
+                icon: Icons.grid_view_rounded,
+                onChanged: (v) => setState(() => useClustering = v),
               ),
             ],
           ),
