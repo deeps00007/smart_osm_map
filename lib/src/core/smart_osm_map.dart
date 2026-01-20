@@ -84,8 +84,8 @@ class SmartOsmMap<T> extends StatefulWidget {
 
   factory SmartOsmMap.simple({
     required List<T> items,
-    required double Function(T) latitude,
-    required double Function(T) longitude,
+    required double? Function(T) latitude,
+    required double? Function(T) longitude,
     String? Function(T)? markerImage,
     void Function(T)? onTap,
     bool showUserLocation = false,
@@ -109,13 +109,17 @@ class SmartOsmMap<T> extends StatefulWidget {
   }) {
     return SmartOsmMap._(
       items: items
-          .map(
-            (e) => InternalMapItem<T>(
+          .map((e) {
+            final lat = latitude(e);
+            final lng = longitude(e);
+            if (lat == null || lng == null) return null;
+            return InternalMapItem<T>(
               id: e.hashCode.toString(),
-              position: LatLng(latitude(e), longitude(e)),
+              position: LatLng(lat, lng),
               data: e,
-            ),
-          )
+            );
+          })
+          .whereType<InternalMapItem<T>>()
           .toList(),
       markerImage: markerImage,
       onTap: onTap,
@@ -149,6 +153,7 @@ class _SmartOsmMapState<T> extends State<SmartOsmMap<T>>
   final LocationService _locationService = LocationService();
   final MapController _mapController = MapController();
   LatLng? _userLocation;
+  LocationResult? _locationResult;
 
   late final AnimationController _radiusController;
   late final AnimationController _moveController;
@@ -181,6 +186,9 @@ class _SmartOsmMapState<T> extends State<SmartOsmMap<T>>
   Future<void> _loadUserLocation() async {
     final (result, location) =
         await _locationService.getCurrentLocationWithStatus();
+
+    if (!mounted) return;
+    setState(() => _locationResult = result);
 
     switch (result) {
       case LocationResult.serviceDisabled:
@@ -482,6 +490,67 @@ class _SmartOsmMapState<T> extends State<SmartOsmMap<T>>
                     'No places found within this area',
                     style: TextStyle(color: Colors.white),
                   ),
+                ),
+              ),
+            ),
+          ),
+
+        // 🛡️ Location Permission Feedback (SAFE & SUBTLE)
+        if (effectiveShowLocation &&
+            _userLocation == null &&
+            _locationResult != null &&
+            _locationResult != LocationResult.success)
+          Positioned(
+            top: MediaQuery.of(context).padding.top + 80,
+            left: 20,
+            right: 20,
+            child: TweenAnimationBuilder<double>(
+              tween: Tween(begin: 0.0, end: 1.0),
+              duration: const Duration(milliseconds: 500),
+              builder: (context, value, child) {
+                return Opacity(
+                  opacity: value,
+                  child: Transform.translate(
+                    offset: Offset(0, (1 - value) * -20),
+                    child: child,
+                  ),
+                );
+              },
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                decoration: BoxDecoration(
+                  color: Colors.red.withValues(alpha: 0.9),
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.2),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.location_off_rounded, color: Colors.white),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        _locationResult == LocationResult.serviceDisabled
+                            ? 'Location services are disabled'
+                            : 'Location permission denied',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close, color: Colors.white70),
+                      onPressed: () => setState(() => _locationResult = null),
+                      visualDensity: VisualDensity.compact,
+                    ),
+                  ],
                 ),
               ),
             ),

@@ -1,3 +1,12 @@
+## 0.3.1
+
+* **Robustness & Error Handling**:
+  * **Null Safety**: `SmartOsmMap.simple` now handles nullable coordinate functions and gracefully skips items with missing coordinates.
+  * **Image Fallbacks**: Enhanced `DefaultImageMarker` with a modern placeholder UI for broken or missing marker images.
+  * **Permission Feedback**: Added a built-in UI overlay to notify users when location permissions are denied or location services are disabled.
+* **Maintenance**:
+  * Simplified library exports by including `latlong2` for easier access to `LatLng`.
+
 ## 0.3.0
 
 * **New Features (Reviewer Feedback)**:
