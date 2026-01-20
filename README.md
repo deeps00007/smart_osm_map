@@ -24,12 +24,12 @@ Built on top of `flutter_map`, this package offers a "plug-and-play" experience 
 
 ## Features
 
-- **Clustered Markers**: Automatically clusters markers to reduce clutter and improve performance.
+- **Clustered Markers**: Automatically clusters markers to reduce clutter and improve performance. Can be disabled if needed.
+- **Custom Cluster Styling**: Provide your own `clusterBuilder` to customize how clustered markers look.
 - **Image Markers**: Supports both network images and local asset images for markers.
 - **User Location**: Optional support to show the user's current location with safe permission handling.
 - **Nearby Filtering**: Filter markers within a configurable radius from the user, complete with an animated ripple effect.
-- **Privacy First**: Does not track, store, or transmit user location data. Location is only accessed when explicitly enabled by you.
-- **Customizable**: Control marker size, border colors, cluster colors, and more.
+- **Map Controls**: Flexible control over `initialCenter`, `initialZoom`, `minZoom`, `maxZoom`, and `onMapReady` callbacks.
 - **No API Keys**: Uses OpenStreetMap tiles, requiring no API keys for standard usage.
 
 ## Installation
@@ -167,6 +167,12 @@ class _SmartMapPlaygroundState extends State<SmartMapPlayground> {
 | `nearbyRadiusKm` | `double` | `10` | The radius in kilometers for nearby filtering. |
 | `markerSize` | `double` | `56` | Size of the marker icons. |
 | `minZoom` | `double` | `2.0` | Minimum zoom level (how far you can zoom out). |
+| `maxZoom` | `double` | `18.0` | Maximum zoom level (how far you can zoom in). |
+| `initialZoom` | `double` | `13.0` | Starting zoom level. |
+| `initialCenter` | `LatLng?` | `null` | Starting center coordinates (defaults to first item). |
+| `onMapReady` | `VoidCallback?` | `null` | Callback when the map is fully loaded. |
+| `useClustering` | `bool` | `true` | Whether to enable marker clustering. |
+| `clusterBuilder` | `Widget Function(BuildContext, List<Marker>)?` | `null` | Custom builder for the cluster widget. |
 
 ## OS Permissions
 
