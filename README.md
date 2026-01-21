@@ -155,26 +155,35 @@ class _SmartMapPlaygroundState extends State<SmartMapPlayground> {
 
 ## Common Use Cases
 
-### 🏬 Store & ATM Locator
-<p align="left">
-  <img src="https://ik.imagekit.io/projectss/store_locator_mockup.png?updatedAt=1769019651572" width="300">
-</p>
+<table>
+  <tr>
+    <td width="300"><img src="https://ik.imagekit.io/projectss/store_locator_mockup.png?updatedAt=1769019651572" width="300"></td>
+    <td valign="top">
+      <h4>🏬 Store & ATM Locator</h4>
+      Perfect for displaying branches or ATMs with custom branding. Use the <code>nearbyRadiusKm</code> to show only the closest locations to the user.
+    </td>
+  </tr>
+</table>
 
-Perfect for displaying branches or ATMs with custom branding. Use the `nearbyRadiusKm` to show only the closest locations to the user.
+<table>
+  <tr>
+    <td width="300"><img src="https://ik.imagekit.io/projectss/real_estate_mockup.png?updatedAt=1769019651201" width="300"></td>
+    <td valign="top">
+      <h4>🏡 Real Estate Lists</h4>
+      Show properties on a map with high-quality images. Use clustering to keep the view clean in high-density areas like city centers.
+    </td>
+  </tr>
+</table>
 
-### 🏡 Real Estate Lists
-<p align="left">
-  <img src="https://ik.imagekit.io/projectss/real_estate_mockup.png?updatedAt=1769019651201" width="300">
-</p>
-
-Show properties on a map with high-quality images. Use clustering to keep the view clean in high-density areas like city centers.
-
-### 🍱 Food Delivery & Services
-<p align="left">
-  <img src="https://ik.imagekit.io/projectss/food_delivery_mockup.png?updatedAt=1769019651379" width="300">
-</p>
-
-Display partner restaurants or service providers. Use `onTap` to show detailed menus or service info in a bottom sheet.
+<table>
+  <tr>
+    <td width="300"><img src="https://ik.imagekit.io/projectss/food_delivery_mockup.png?updatedAt=1769019651379" width="300"></td>
+    <td valign="top">
+      <h4>🍱 Food Delivery & Services</h4>
+      Display partner restaurants or service providers. Use <code>onTap</code> to show detailed menus or service info in a bottom sheet.
+    </td>
+  </tr>
+</table>
 
 ## Configuration
 
