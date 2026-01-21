@@ -156,12 +156,24 @@ class _SmartMapPlaygroundState extends State<SmartMapPlayground> {
 ## Common Use Cases
 
 ### 🏬 Store & ATM Locator
+<p align="left">
+  <img src="https://ik.imagekit.io/projectss/store_locator_mockup.png?updatedAt=1769019651572" width="300">
+</p>
+
 Perfect for displaying branches or ATMs with custom branding. Use the `nearbyRadiusKm` to show only the closest locations to the user.
 
 ### 🏡 Real Estate Lists
+<p align="left">
+  <img src="https://ik.imagekit.io/projectss/real_estate_mockup.png?updatedAt=1769019651201" width="300">
+</p>
+
 Show properties on a map with high-quality images. Use clustering to keep the view clean in high-density areas like city centers.
 
 ### 🍱 Food Delivery & Services
+<p align="left">
+  <img src="https://ik.imagekit.io/projectss/food_delivery_mockup.png?updatedAt=1769019651379" width="300">
+</p>
+
 Display partner restaurants or service providers. Use `onTap` to show detailed menus or service info in a bottom sheet.
 
 ## Configuration
