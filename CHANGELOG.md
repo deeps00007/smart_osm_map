@@ -1,3 +1,11 @@
+## 1.0.0
+
+* **Stable Release**:
+  * Initial stable release with full feature set.
+  * Robust error handling for coordinates and images.
+  * Comprehensive documentation with use cases and performance tips.
+  * Smooth animations and clustering enabled by default.
+
 ## 0.3.1
 
 * **Robustness & Error Handling**:
