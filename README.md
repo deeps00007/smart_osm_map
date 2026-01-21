@@ -153,6 +153,17 @@ class _SmartMapPlaygroundState extends State<SmartMapPlayground> {
 }
 ```
 
+## Common Use Cases
+
+### 🏬 Store & ATM Locator
+Perfect for displaying branches or ATMs with custom branding. Use the `nearbyRadiusKm` to show only the closest locations to the user.
+
+### 🏡 Real Estate Lists
+Show properties on a map with high-quality images. Use clustering to keep the view clean in high-density areas like city centers.
+
+### 🍱 Food Delivery & Services
+Display partner restaurants or service providers. Use `onTap` to show detailed menus or service info in a bottom sheet.
+
 ## Configuration
 
 | Parameter | Type | Default | Description |
@@ -202,7 +213,23 @@ Add the following to your `<project>/ios/Runner/Info.plist`:
 - **No Data Collection**: Location data is processed locally on the device to render the user layer and calculate distances. It is never sent to any external server by this package.
 - **Store Friendly**: Designed to comply with Apple App Store and Google Play Store privacy guidelines regarding location usage.
 
-## Best Practices
+## Performance & Large Datasets
 
-- **Large Datasets**: While clustering helps with performance, extremely large datasets (thousands of items) may still impact performance depending on the device.
-- **Tile Servers**: By default, this uses standard OpenStreetMap tiles. Ensure you comply with their [Tile Usage Policy](https://operations.osmfoundation.org/policies/tiles/) for heavy usage, or swap with your own tile provider if needed.
+While `smart_osm_map` is optimized for high performance, following these tips will ensure a smooth 60 FPS experience:
+
+- **Enable Clustering**: For datasets over 100 items, always keep `useClustering: true`. This significantly reduces the number of widgets rendered on screen.
+- **Lightweight Models**: Pass only the necessary data to the `items` list. If your items have large nested objects, consider mapping them to a lighter "MapItem" model.
+- **Image Optimization**: Avoid using high-resolution 4K images for markers. Use thumbnails (e.g., 200x200px) to reduce memory overhead.
+- **Coordinate Precision**: Coordinates are processed locally. For thousands of points, ensure your data source provides clean `double` values.
+
+## Troubleshooting
+
+| Issue | Potential Solution |
+|---|---|
+| **Map is blank** | Ensure you have an active internet connection and that the device can reach `tile.openstreetmap.org`. |
+| **Location not showing** | Double-check that you've added the required permissions to `AndroidManifest.xml` and `Info.plist`. |
+| **Asset images missing** | Verify the image paths are correctly defined in your `pubspec.yaml` assets section. |
+| **Markers not clickable** | Ensure you haven't placed a broad `GestureDetector` or `IgnorePointer` over the `SmartOsmMap` widget. |
+| **App crashes on LatLng** | The package now handles `null` coordinates, but ensure your `latitude` and `longitude` functions return valid numbers or `null`. |
+
+## OS Permissions
