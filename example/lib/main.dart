@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:smart_osm_map/smart_osm_map.dart';
 
@@ -5,42 +6,22 @@ void main() {
   runApp(const MyApp());
 }
 
+/// Sample model (simulates real user data)
 class Place {
   final String name;
   final double lat;
   final double lng;
-  final String? image;
+  final String image;
   final String description;
-  final PlaceType type;
 
   const Place({
     required this.name,
     required this.lat,
     required this.lng,
-    this.image,
+    required this.image,
     required this.description,
-    required this.type,
   });
-
-  Color getTypeColor() {
-    switch (type) {
-      case PlaceType.restaurant:
-        return const Color(0xFFEF4444);
-      case PlaceType.hotel:
-        return const Color(0xFF3B82F6);
-      case PlaceType.landmark:
-        return const Color(0xFFF59E0B);
-      case PlaceType.hospital:
-        return const Color(0xFF10B981);
-      case PlaceType.tech:
-        return const Color(0xFF8B5CF6);
-      default:
-        return const Color(0xFF6B7280);
-    }
-  }
 }
-
-enum PlaceType { restaurant, hotel, landmark, hospital, tech }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -53,862 +34,516 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
         brightness: Brightness.light,
         colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF1E40AF),
+          seedColor: const Color(0xFF6750A4),
           brightness: Brightness.light,
         ),
-        scaffoldBackgroundColor: const Color(0xFFFAFAFA),
-        appBarTheme: const AppBarTheme(
-          backgroundColor: Colors.white,
-          surfaceTintColor: Colors.transparent,
-          elevation: 0,
-          centerTitle: true,
+        textTheme: const TextTheme(
+          displayMedium: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            letterSpacing: -0.5,
+          ),
+          bodyLarge: TextStyle(fontSize: 16, height: 1.5),
         ),
       ),
-      home: const ExampleSelector(),
+      home: const SmartMapPlayground(),
     );
   }
 }
 
-// 🎯 Main selector - Modern clean design
-class ExampleSelector extends StatelessWidget {
-  const ExampleSelector({super.key});
+class SmartMapPlayground extends StatefulWidget {
+  const SmartMapPlayground({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Map Examples',
-          style: TextStyle(
-            fontWeight: FontWeight.w600,
-            fontSize: 20,
-            color: Color(0xFF111827),
-          ),
-        ),
-      ),
-      body: Container(
-        color: const Color(0xFFF9FAFB),
-        child: ListView(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-          children: [
-            const _SectionHeader(title: 'Basic Features'),
-            const SizedBox(height: 12),
-            _ExampleTile(
-              title: 'Basic Usage',
-              subtitle: 'Simple map with markers and clustering',
-              icon: Icons.map_outlined,
-              example: const BasicExample(),
-            ),
-            const SizedBox(height: 12),
-            _ExampleTile(
-              title: 'Location & Nearby',
-              subtitle: 'User location with radius filtering',
-              icon: Icons.my_location,
-              example: const LocationExample(),
-            ),
-            const SizedBox(height: 12),
-            _ExampleTile(
-              title: 'Permission Handling',
-              subtitle: 'All permission states demonstrated',
-              icon: Icons.security,
-              example: const PermissionExample(),
-            ),
-            const SizedBox(height: 24),
-            const _SectionHeader(title: 'Advanced Features'),
-            const SizedBox(height: 12),
-            _ExampleTile(
-              title: 'Custom Styling',
-              subtitle: 'Custom markers, clusters, and colors',
-              icon: Icons.palette,
-              example: const StylingExample(),
-            ),
-            const SizedBox(height: 12),
-            _ExampleTile(
-              title: 'Performance Test',
-              subtitle: '500+ markers with clustering',
-              icon: Icons.speed,
-              example: const PerformanceExample(),
-            ),
-            const SizedBox(height: 12),
-            _ExampleTile(
-              title: 'Network Images',
-              subtitle: 'Markers with remote images',
-              icon: Icons.cloud_download,
-              example: const NetworkImageExample(),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+  State<SmartMapPlayground> createState() => _SmartMapPlaygroundState();
 }
 
-class _SectionHeader extends StatelessWidget {
-  final String title;
-
-  const _SectionHeader({required this.title});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4),
-      child: Text(
-        title,
-        style: const TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.w500,
-          color: Color(0xFF6B7280),
-          letterSpacing: 0.5,
-        ),
-      ),
-    );
-  }
-}
-
-class _ExampleTile extends StatelessWidget {
-  final String title;
-  final String subtitle;
-  final IconData icon;
-  final Widget example;
-
-  const _ExampleTile({
-    required this.title,
-    required this.subtitle,
-    required this.icon,
-    required this.example,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFE5E7EB), width: 1),
-      ),
-      child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 12,
-        ),
-        leading: Container(
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(
-            color: const Color(0xFFF3F4F6),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Icon(icon, color: const Color(0xFF374151), size: 20),
-        ),
-        title: Text(
-          title,
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
-            color: Color(0xFF111827),
-          ),
-        ),
-        subtitle: Text(
-          subtitle,
-          style: const TextStyle(fontSize: 13, color: Color(0xFF6B7280)),
-        ),
-        trailing: Container(
-          width: 28,
-          height: 28,
-          decoration: BoxDecoration(
-            color: const Color(0xFFF3F4F6),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: const Icon(
-            Icons.arrow_forward_ios_rounded,
-            size: 12,
-            color: Color(0xFF6B7280),
-          ),
-        ),
-        onTap: () =>
-            Navigator.push(context, MaterialPageRoute(builder: (_) => example)),
-      ),
-    );
-  }
-}
-
-// 📍 Example 1: Basic Usage
-class BasicExample extends StatelessWidget {
-  const BasicExample({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final places = [
-      const Place(
-        name: 'India Gate',
-        lat: 28.6129,
-        lng: 77.2295,
-        image: 'assets/images/india_gate.png',
-        description: 'War memorial in New Delhi',
-        type: PlaceType.landmark,
-      ),
-      const Place(
-        name: 'Red Fort',
-        lat: 28.6562,
-        lng: 77.2410,
-        image: 'assets/images/red_fort.png',
-        description: 'Historic Mughal fort',
-        type: PlaceType.landmark,
-      ),
-      const Place(
-        name: 'No Image Marker',
-        lat: 28.6315,
-        lng: 77.2167,
-        image: null,
-        description: 'Demonstrates default marker',
-        type: PlaceType.landmark,
-      ),
-    ];
-
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Basic Usage'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.info_outline, size: 20),
-            onPressed: () {
-              showModalBottomSheet(
-                context: context,
-                backgroundColor: Colors.transparent,
-                builder: (context) => Container(
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(20),
-                      topRight: Radius.circular(20),
-                    ),
-                  ),
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Basic Usage',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFF111827),
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      const Text(
-                        'This example shows basic map functionality with markers. '
-                        'Tap on markers to see details.',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Color(0xFF6B7280),
-                          height: 1.5,
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: () => Navigator.pop(context),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF111827),
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                          ),
-                          child: const Text('Got it'),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
-          ),
-        ],
-      ),
-      body: FlutterMapSmart.simple(
-        items: places,
-        latitude: (p) => p.lat,
-        longitude: (p) => p.lng,
-        markerImage: (p) => p.image,
-        onTap: (place) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Tapped: ${place.name}'),
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-              backgroundColor: const Color(0xFF111827),
-            ),
-          );
-        },
-      ),
-    );
-  }
-}
-
-// 📍 Example 2: Location & Nearby
-class LocationExample extends StatefulWidget {
-  const LocationExample({super.key});
-
-  @override
-  State<LocationExample> createState() => _LocationExampleState();
-}
-
-class _LocationExampleState extends State<LocationExample> {
-  bool showLocation = false;
+class _SmartMapPlaygroundState extends State<SmartMapPlayground> {
+  bool showUserLocation = false;
   bool enableNearby = false;
-  double radiusKm = 10;
+  bool useClustering = true;
+  Place? selectedPlace;
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Location & Nearby')),
-      body: Stack(
-        children: [
-          FlutterMapSmart.simple(
-            items: _generateDelhiPlaces(),
-            latitude: (p) => p.lat,
-            longitude: (p) => p.lng,
-            markerImage: (p) => p.image,
-            showUserLocation: showLocation,
-            enableNearby: enableNearby,
-            nearbyRadiusKm: radiusKm,
-            radiusColor: const Color(0xFFE0E7FF),
-          ),
-          Positioned(
-            bottom: 20,
-            left: 20,
-            right: 20,
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.08),
-                    blurRadius: 20,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Location Controls',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF111827),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    _buildToggle(
-                      icon: Icons.location_on,
-                      title: 'Show My Location',
-                      value: showLocation,
-                      onChanged: (v) => setState(() => showLocation = v),
-                    ),
-                    const SizedBox(height: 12),
-                    _buildToggle(
-                      icon: Icons.filter_alt,
-                      title: 'Filter Nearby',
-                      value: enableNearby,
-                      enabled: showLocation,
-                      subtitle: 'Within ${radiusKm.toInt()} km',
-                      onChanged: (v) => setState(() => enableNearby = v),
-                    ),
-                    if (enableNearby) ...[
-                      const SizedBox(height: 20),
-                      _buildRadiusSlider(),
-                    ],
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildToggle({
-    required IconData icon,
-    required String title,
-    required bool value,
-    required Function(bool) onChanged,
-    bool enabled = true,
-    String? subtitle,
-  }) {
-    return Opacity(
-      opacity: enabled ? 1.0 : 0.5,
-      child: Row(
-        children: [
-          Icon(icon, size: 20, color: const Color(0xFF6B7280)),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: const Color(0xFF111827),
-                  ),
-                ),
-                if (subtitle != null)
-                  Text(
-                    subtitle,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: Color(0xFF6B7280),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-          Transform.scale(
-            scale: 0.8,
-            child: Switch(
-              value: value,
-              onChanged: enabled ? onChanged : null,
-              activeColor: const Color(0xFF1E40AF),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildRadiusSlider() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Icon(Icons.adjust, size: 16, color: Color(0xFF6B7280)),
-            const SizedBox(width: 8),
-            Text(
-              'Radius: ${radiusKm.toInt()} km',
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
-                color: Color(0xFF111827),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        Slider(
-          value: radiusKm,
-          min: 1,
-          max: 50,
-          divisions: 49,
-          label: '${radiusKm.toInt()} km',
-          onChanged: (v) => setState(() => radiusKm = v),
-          activeColor: const Color(0xFF1E40AF),
-          inactiveColor: const Color(0xFFE5E7EB),
-        ),
-      ],
-    );
-  }
-}
-
-// 📍 Example 3: Permission Handling
-class PermissionExample extends StatefulWidget {
-  const PermissionExample({super.key});
-
-  @override
-  State<PermissionExample> createState() => _PermissionExampleState();
-}
-
-class _PermissionExampleState extends State<PermissionExample> {
-  String? permissionStatus;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Permission Handling')),
-      body: Stack(
-        children: [
-          FlutterMapSmart.simple(
-            items: _generateDelhiPlaces(),
-            latitude: (p) => p.lat,
-            longitude: (p) => p.lng,
-            markerImage: (p) => p.image,
-            showUserLocation: true,
-            onLocationPermissionGranted: () {
-              setState(() => permissionStatus = 'Permission Granted');
-            },
-            onLocationPermissionDenied: () {
-              setState(() => permissionStatus = 'Permission Denied');
-            },
-            onLocationPermissionDeniedForever: () {
-              setState(() => permissionStatus = 'Permission Denied Forever');
-            },
-            onLocationServiceDisabled: () {
-              setState(() => permissionStatus = 'Location Service Disabled');
-            },
-          ),
-          if (permissionStatus != null)
-            Positioned(
-              top: MediaQuery.of(context).padding.top + 20,
-              left: 20,
-              right: 20,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: const Color(0xFFE5E7EB)),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                  children: [
-                    Icon(Icons.info, color: const Color(0xFF1E40AF), size: 20),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        permissionStatus!,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          color: Color(0xFF111827),
-                        ),
-                      ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.close, size: 16),
-                      onPressed: () => setState(() => permissionStatus = null),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          Positioned(
-            bottom: 20,
-            left: 20,
-            right: 20,
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFFE5E7EB)),
-              ),
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Permission States',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF111827),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  _buildPermissionItem(
-                    'Granted',
-                    'User allowed location access',
-                  ),
-                  _buildPermissionItem('Denied', 'User denied location access'),
-                  _buildPermissionItem(
-                    'Denied Forever',
-                    'User permanently denied',
-                  ),
-                  _buildPermissionItem('Disabled', 'Location services are off'),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPermissionItem(String title, String description) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 6,
-            height: 6,
-            margin: const EdgeInsets.only(top: 8),
-            decoration: const BoxDecoration(
-              color: Color(0xFFD1D5DB),
-              shape: BoxShape.circle,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: Color(0xFF111827),
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  description,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: Color(0xFF6B7280),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// 📍 Example 4: Custom Styling
-class StylingExample extends StatelessWidget {
-  const StylingExample({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Custom Styling')),
-      body: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(16),
-            color: const Color(0xFFF3F4F6),
-            child: Row(
-              children: [
-                Icon(Icons.palette, size: 20, color: const Color(0xFF111827)),
-                const SizedBox(width: 12),
-                const Text(
-                  'Custom markers, clusters, and radius colors',
-                  style: TextStyle(fontSize: 14, color: Color(0xFF6B7280)),
-                ),
-              ],
-            ),
-          ),
-          Expanded(
-            child: FlutterMapSmart.simple(
-              items: _generateDelhiPlaces(),
-              latitude: (p) => p.lat,
-              longitude: (p) => p.lng,
-              markerImage: (p) => p.image,
-              markerSize: 64,
-              markerBorderColor: const Color(0xFF1E40AF),
-              clusterColor: const Color(0xFF1E40AF),
-              radiusColor: const Color(0xFFDBEAFE),
-              showUserLocation: true,
-              enableNearby: true,
-              nearbyRadiusKm: 15,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// 📍 Example 5: Performance Test
-class PerformanceExample extends StatelessWidget {
-  const PerformanceExample({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final places = List.generate(500, (i) {
-      final lat = 28.5 + (i % 20) * 0.01;
-      final lng = 77.1 + (i ~/ 20) * 0.01;
-      return Place(
-        name: 'Place $i',
-        lat: lat,
-        lng: lng,
-        image: i % 3 == 0 ? 'assets/images/india_gate.png' : null,
-        description: 'Test marker $i',
-        type: PlaceType.landmark,
-      );
-    });
-
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Performance Test'),
-        actions: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF3F4F6),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Text(
-              '${places.length} markers',
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
-                color: Color(0xFF374151),
-              ),
-            ),
-          ),
-        ],
-      ),
-      body: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(16),
-            color: const Color(0xFFFEF3C7),
-            child: Row(
-              children: [
-                Icon(Icons.speed, size: 20, color: const Color(0xFF92400E)),
-                const SizedBox(width: 12),
-                const Text(
-                  'Testing with 500 markers using clustering for optimal performance',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Color(0xFF92400E),
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Expanded(
-            child: FlutterMapSmart.simple(
-              items: places,
-              latitude: (p) => p.lat,
-              longitude: (p) => p.lng,
-              markerImage: (p) => p.image,
-              useClustering: true,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// 📍 Example 6: Network Images
-class NetworkImageExample extends StatelessWidget {
-  const NetworkImageExample({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final places = [
-      const Place(
-        name: 'Network Image 1',
-        lat: 28.6129,
-        lng: 77.2295,
-        image: 'https://picsum.photos/200/200?random=1',
-        description: 'Remote image marker',
-        type: PlaceType.landmark,
-      ),
-      const Place(
-        name: 'Network Image 2',
-        lat: 28.6315,
-        lng: 77.2167,
-        image: 'https://picsum.photos/200/200?random=2',
-        description: 'Another remote image',
-        type: PlaceType.landmark,
-      ),
-      const Place(
-        name: 'Broken Image',
-        lat: 28.6562,
-        lng: 77.2410,
-        image: 'https://invalid-url-to-test-error.com/image.jpg',
-        description: 'Tests error handling',
-        type: PlaceType.landmark,
-      ),
-    ];
-
-    return Scaffold(
-      appBar: AppBar(title: const Text('Network Images')),
-      body: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(16),
-            color: const Color(0xFFF3F4F6),
-            child: const Row(
-              children: [
-                Icon(Icons.wifi, size: 20, color: Color(0xFF111827)),
-                SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    'Markers load images from network URLs. Broken URLs show error states.',
-                    style: TextStyle(fontSize: 14, color: Color(0xFF6B7280)),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Expanded(
-            child: FlutterMapSmart.simple(
-              items: places,
-              latitude: (p) => p.lat,
-              longitude: (p) => p.lng,
-              markerImage: (p) => p.image,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// Helper function
-List<Place> _generateDelhiPlaces() {
-  return const [
+  final List<Place> places = const [
     Place(
       name: 'India Gate',
       lat: 28.6129,
       lng: 77.2295,
       image: 'assets/images/india_gate.png',
-      description: 'War memorial',
-      type: PlaceType.landmark,
-    ),
-    Place(
-      name: 'Red Fort',
-      lat: 28.6562,
-      lng: 77.2410,
-      image: 'assets/images/red_fort.png',
-      description: 'Historic fort',
-      type: PlaceType.landmark,
-    ),
-    Place(
-      name: 'Qutub Minar',
-      lat: 28.5245,
-      lng: 77.1855,
-      image: 'assets/images/qutub_minar.png',
-      description: 'Ancient minaret',
-      type: PlaceType.landmark,
+      description:
+          'The India Gate is a war memorial located astride the Rajpath.',
     ),
     Place(
       name: 'Connaught Place',
       lat: 28.6315,
       lng: 77.2167,
       image: 'assets/images/connaught_place.png',
-      description: 'Shopping district',
-      type: PlaceType.landmark,
+      description:
+          'One of the main financial, commercial and business centres in New Delhi.',
+    ),
+    Place(
+      name: 'Red Fort',
+      lat: 28.6562,
+      lng: 77.2410,
+      image: 'assets/images/red_fort.png',
+      description:
+          'A historic fort in the city of Delhi in India that served as the main residence of the Mughal Emperors.',
+    ),
+    Place(
+      name: 'Qutub Minar',
+      lat: 28.5245,
+      lng: 77.1855,
+      image: 'assets/images/qutub_minar.png',
+      description:
+          'A minaret not far from the Qutb complex. It is a UNESCO World Heritage Site.',
+    ),
+    // Noida Sector 62 Additions
+    Place(
+      name: 'Radisson Blu MBD Hotel',
+      lat: 28.5672,
+      lng: 77.3215,
+      image: 'assets/images/luxury_hotel.png',
+      description:
+          'Luxury hotel in Noida Sector 18, nearby Sector 62 connectivity.',
+    ),
+    Place(
+      name: 'Ginger Hotel Noida',
+      lat: 28.6208,
+      lng: 77.3639,
+      image: 'assets/images/budget_hotel.png',
+      description: 'Comfortable stay in the heart of Sector 62, Noida.',
+    ),
+    Place(
+      name: 'Ascent Biz Hotel',
+      lat: 28.6258,
+      lng: 77.3719,
+      image: 'assets/images/budget_hotel.png',
+      description:
+          'Modern hotel located opposite the Expo Centre in Sector 62.',
+    ),
+    Place(
+      name: 'Tech Mahindra Campus',
+      lat: 28.6189,
+      lng: 77.3732,
+      image: 'assets/images/tech_campus.png',
+      description: 'Major IT tech park and campus in Sector 62.',
+    ),
+    Place(
+      name: 'Fortis Hospital',
+      lat: 28.6183,
+      lng: 77.3735,
+      image: 'assets/images/hospital.png',
+      description: 'A leading multi-speciality hospital in Sector 62.',
+    ),
+    // Sector 66 & 61 Additions
+    Place(
+      name: 'Mamura Chowk',
+      lat: 28.6045,
+      lng: 77.3768,
+      image: 'assets/images/busy_intersection.png',
+      description: 'Busy intersection near Sector 66.',
+    ),
+    Place(
+      name: 'Shopprix Mall',
+      lat: 28.6010,
+      lng: 77.3630,
+      image: 'assets/images/shopping_mall.png',
+      description: 'Popular shopping mall in Sector 61.',
+    ),
+    Place(
+      name: 'Park Plaza Noida',
+      lat: 28.6052,
+      lng: 77.3621,
+      image: 'assets/images/luxury_hotel.png',
+      description: 'Upscale hotel with modern amenities in Sector 55/61.',
+    ),
+    Place(
+      name: 'Sai Baba Mandir',
+      lat: 28.5998,
+      lng: 77.3590,
+      image: 'assets/images/temple.png',
+      description: 'Famous spiritual landmark near Sector 61.',
+    ),
+    // Distant Places (> 10km)
+    Place(
+      name: 'Taj Mahal',
+      lat: 27.1751,
+      lng: 78.0421,
+      image: 'assets/images/taj_mahal.png',
+      description:
+          'Mausoleum in Agra (approx 180km away). Should disappear when Nearby is ON.',
+    ),
+    Place(
+      name: 'Cyber Hub',
+      lat: 28.4950,
+      lng: 77.0895,
+      image: 'assets/images/tech_campus.png',
+      description:
+          'Dining and entertainment hub in Gurgaon (approx 30km away).',
     ),
   ];
+
+  // void _requestLocation() {
+  //   setState(() {
+  //     showUserLocation = true;
+  //     enableNearby = true;
+  //   });
+  // }
+
+  void _resetAll() {
+    setState(() {
+      showUserLocation = false;
+      enableNearby = false;
+      selectedPlace = null;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      extendBodyBehindAppBar: true,
+      body: Stack(
+        children: [
+          // 🗺️ MAP LAYER
+          SmartOsmMap.simple(
+            items: places,
+            latitude: (p) => p.lat,
+            longitude: (p) => p.lng,
+            markerImage: (p) => p.image,
+
+            // 🔥 CORE FEATURES
+            showUserLocation: showUserLocation,
+            enableNearby: enableNearby,
+            nearbyRadiusKm: 10,
+            useClustering: useClustering,
+
+            // 🛠️ NEW FEEDBACK FEATURES
+            maxZoom: 18,
+            initialZoom: 13,
+            initialCenter: const LatLng(
+              28.6129,
+              77.2295,
+            ), // Center on India Gate
+            onMapReady: () {
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(const SnackBar(content: Text('Map is ready!')));
+            },
+
+            // 🎨 STYLE CUSTOMIZATION
+            markerSize: 64,
+            markerBorderColor: Theme.of(context).primaryColor,
+            clusterColor: Colors.black87,
+            radiusColor: Theme.of(context).primaryColor,
+
+            onTap: (place) {
+              setState(() {
+                selectedPlace = place;
+              });
+            },
+          ),
+
+          // 🧠 FLOATING HEADER
+          Positioned(top: 0, left: 0, right: 0, child: _buildHeader(context)),
+
+          // 🧩 BOTTOM CONTROLS & INFO
+          Positioned(
+            left: 16,
+            right: 16,
+            bottom: 32,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (selectedPlace != null) _buildPlaceCard(selectedPlace!),
+                const SizedBox(height: 16),
+                _buildControlPanel(context),
+              ],
+            ),
+          ),
+
+          // 📍 FLOATING ACTION BUTTON
+          // Positioned(
+          //   right: 16,
+          //   bottom: selectedPlace != null
+          //       ? 340
+          //       : 250, // Adjust position based on card visibility
+          //   child: FloatingActionButton(
+          //     onPressed: _requestLocation,
+          //     backgroundColor: Theme.of(context).primaryColor,
+          //     foregroundColor: Colors.white,
+          //     tooltip: 'My Location',
+          //     child: const Icon(Icons.my_location),
+          //   ),
+          // ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHeader(BuildContext context) {
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(50),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              decoration: BoxDecoration(
+                color: Colors.black.withValues(alpha: 0.75),
+                borderRadius: BorderRadius.circular(50),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.1),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Theme.of(
+                        context,
+                      ).primaryColor.withValues(alpha: 0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.map_outlined,
+                      color: Theme.of(context).primaryColor,
+                      size: 20,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'Explore Delhi',
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: const Color.fromARGB(221, 255, 255, 255),
+                              ),
+                        ),
+                        const Text(
+                          'Interactive Map Demo',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Color.fromARGB(137, 255, 255, 255),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: _resetAll,
+                    icon: const Icon(Icons.refresh_rounded),
+                    tooltip: 'Reset View',
+                    style: IconButton.styleFrom(
+                      foregroundColor: const Color.fromARGB(137, 255, 255, 255),
+                      visualDensity: VisualDensity.compact,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildControlPanel(BuildContext context) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(24),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.black.withValues(alpha: 0.75),
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(
+              color: Colors.white.withValues(alpha: 0.1),
+              width: 1,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.2),
+                blurRadius: 20,
+                offset: const Offset(0, 10),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildSwitch(
+                title: 'Live Location',
+                subtitle: 'Show your current position',
+                value: showUserLocation,
+                icon: Icons.person_pin_circle,
+                onChanged: (v) {
+                  setState(() {
+                    showUserLocation = v;
+                    if (!v) enableNearby = false;
+                  });
+                },
+              ),
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 8),
+                child: Divider(color: Colors.white12, height: 1),
+              ),
+              _buildSwitch(
+                title: 'Nearby Places',
+                subtitle: 'Filter within 10 km',
+                value: enableNearby,
+                icon: Icons.radar,
+                onChanged: showUserLocation
+                    ? (v) => setState(() => enableNearby = v)
+                    : null,
+              ),
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 8),
+                child: Divider(color: Colors.white12, height: 1),
+              ),
+              _buildSwitch(
+                title: 'Use Clustering',
+                subtitle: 'Group nearby markers',
+                value: useClustering,
+                icon: Icons.grid_view_rounded,
+                onChanged: (v) => setState(() => useClustering = v),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSwitch({
+    required String title,
+    required String subtitle,
+    required bool value,
+    required IconData icon,
+    required ValueChanged<bool>? onChanged,
+  }) {
+    final isDisabled = onChanged == null;
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.1),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(
+            icon,
+            color: isDisabled ? Colors.white38 : Colors.white,
+            size: 20,
+          ),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: TextStyle(
+                  color: isDisabled ? Colors.white38 : Colors.white,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 15,
+                ),
+              ),
+              Text(
+                subtitle,
+                style: TextStyle(
+                  color: isDisabled ? Colors.white24 : Colors.white70,
+                  fontSize: 12,
+                ),
+              ),
+            ],
+          ),
+        ),
+        Switch.adaptive(
+          value: value,
+          onChanged: onChanged,
+          activeThumbColor: Colors.white,
+          activeTrackColor: Theme.of(context).primaryColor,
+          inactiveTrackColor: Colors.white24,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPlaceCard(Place place) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.1),
+            blurRadius: 15,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: Image.asset(
+              place.image,
+              width: 80,
+              height: 80,
+              fit: BoxFit.cover,
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  place.name,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  place.description,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: Colors.black54,
+                    height: 1.4,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          IconButton(
+            onPressed: () => setState(() => selectedPlace = null),
+            icon: const Icon(Icons.close, color: Colors.black45),
+            visualDensity: VisualDensity.compact,
+          ),
+        ],
+      ),
+    );
+  }
 }
